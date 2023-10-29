@@ -1,0 +1,9 @@
+var myName = "Hello World!";
+
+print myName;
+
+var my_result = 15 + 5;
+
+fun Add(a, b) {
+	return a + b;
+}

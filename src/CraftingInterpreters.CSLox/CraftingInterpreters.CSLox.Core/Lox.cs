@@ -8,11 +8,15 @@ namespace CraftingInterpreters.CSLox.Core
 	{
 		private readonly string _source;
 		private readonly List<Token> _tokens = new List<Token>();
+		private readonly List<string> _errors = new List<string>();
 
 		public Scanner(string source)
 		{
 			_source = source;
 		}
+
+		public bool HadError => _errors.Count > 0;
+		public IEnumerable<string> Errors => _errors;
 
 		private int _start = 0;
 		private int _current = 0;
@@ -55,8 +59,15 @@ namespace CraftingInterpreters.CSLox.Core
 			return _tokens;
 		}
 
+		/// <summary>
+		/// Scan the upcoming token in the source code starting from the upcoming characater
+		/// </summary>
 		private void ScanToken()
 		{
+			// Clear all the errors 
+			_errors.Clear(); 
+
+			// Read and process the upcoming character
 			var c = Advance();
 			switch (c)
 			{
@@ -136,7 +147,7 @@ namespace CraftingInterpreters.CSLox.Core
 					else if (IsAlpha(c))
 						HandleIdentifierToken();
 					else
-						Lox.Error(_line, "Unexpected character.");
+						Error(_line, "Unexpected character.");
 					break;
 			}
 		}
@@ -157,7 +168,7 @@ namespace CraftingInterpreters.CSLox.Core
 			// Check if the current source file ends before reading the closing "
 			if (IsAtEnd())
 			{
-				Lox.Error(_line, "Unterminated string");
+				Error(_line, "Unterminated string");
 				return;
 			}
 
@@ -302,6 +313,25 @@ namespace CraftingInterpreters.CSLox.Core
 		private bool IsAlphaNumeric(char c)
 			=> IsDigit(c) || IsAlpha(c);
 
+		/// <summary>
+		/// Add an error to the error list
+		/// </summary>
+		/// <param name="message"></param>
+		private void Error(int line, string message)
+		{
+			Error(line, string.Empty, message);
+		}
+
+		/// <summary>
+		/// Add the error to the error list with all the details
+		/// </summary>
+		/// <param name="line"></param>
+		/// <param name="where"></param>
+		/// <param name="message"></param>
+		private void Error(int line, string where, string message)
+		{
+			_errors.Add($"[Line: {line}] Error{where}: {message}");
+		}
 	}
 
 	public class Token
