@@ -49,6 +49,9 @@ namespace CraftingInterpreters.CSLox.Core
 		/// <returns></returns>
 		public List<Token> ScanTokens()
 		{
+			// Clear all the errors 
+			_errors.Clear();
+
 			while (!IsAtEnd())
 			{
 				_start = _current;
@@ -64,9 +67,6 @@ namespace CraftingInterpreters.CSLox.Core
 		/// </summary>
 		private void ScanToken()
 		{
-			// Clear all the errors 
-			_errors.Clear(); 
-
 			// Read and process the upcoming character
 			var c = Advance();
 			switch (c)
@@ -115,12 +115,9 @@ namespace CraftingInterpreters.CSLox.Core
 					break;
 				case '/':
 					// Check if it matches a comment with two slashes, so keep moving until the end of the line
-					if (Match('/'))
+					if (Peek() == '/' || Peek() == '*')
 					{
-						while (Peek() != '\n' && !IsAtEnd())
-						{
-							Advance();
-						}
+						HandleComments();
 					}
 					else
 						AddToken(TokenType.SLASH);
@@ -149,6 +146,31 @@ namespace CraftingInterpreters.CSLox.Core
 					else
 						Error(_line, "Unexpected character.");
 					break;
+			}
+		}
+
+		private void HandleComments()
+		{
+			if (Peek() == '*')
+			{
+				// Handle the multi-lines string
+				Advance();
+				while (Peek() != '*' && PeekNext() != '/' && !IsAtEnd())
+				{
+					var character = Advance();
+					if (character == '\n')
+						_line++;
+				}
+				// Jump the last */
+				Advance();
+				Advance();
+			}
+			else
+			{
+				while (Peek() != '\n' && !IsAtEnd())
+				{
+					Advance();
+				}
 			}
 		}
 
@@ -199,6 +221,9 @@ namespace CraftingInterpreters.CSLox.Core
 			AddToken(TokenType.NUMBER, doubleValue);
 		}
 
+		/// <summary>
+		/// Process the user identifier tokens and keywords
+		/// </summary>
 		private void HandleIdentifierToken()
 		{
 			while (IsAlphaNumeric(Peek()))
