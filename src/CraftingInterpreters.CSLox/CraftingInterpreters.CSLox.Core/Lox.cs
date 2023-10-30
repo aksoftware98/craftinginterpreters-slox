@@ -207,9 +207,11 @@ namespace CraftingInterpreters.CSLox.Core
 		/// </summary>
 		private void HandleNumberToken()
 		{
+			// Read the first part of the number for example from the number 4454.3423324 read up to reaching the floating point
 			while (IsDigit(Peek()))
 				Advance();
 
+			// Check if the upcoming character is a float point and followed by another number, so keep reading
 			if (Peek() == '.' && IsDigit(PeekNext()))
 			{
 				while (IsDigit(Peek()))
