@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34219.65
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftingInterpreters.CSLox.Core", "CraftingInterpreters.CSLox.Core\CraftingInterpreters.CSLox.Core.csproj", "{145BE5B2-5F87-4A17-A44B-CC1298BA67D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CraftingInterpreters.CSLox.Core", "CraftingInterpreters.CSLox.Core\CraftingInterpreters.CSLox.Core.csproj", "{145BE5B2-5F87-4A17-A44B-CC1298BA67D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftingInterpreters.CSLox.Runtime", "CraftingInterpreters.CSLox.Runtime\CraftingInterpreters.CSLox.Runtime.csproj", "{8804E1EA-BB9A-4866-87F1-CCDC75F29E9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CraftingInterpreters.CSLox.Runtime", "CraftingInterpreters.CSLox.Runtime\CraftingInterpreters.CSLox.Runtime.csproj", "{8804E1EA-BB9A-4866-87F1-CCDC75F29E9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftingInterpreters.CSLox.Tools", "CraftingInterpreters.CSLox.Tools\CraftingInterpreters.CSLox.Tools.csproj", "{50892B91-6030-44A3-A5C6-D6E0134EDAB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8804E1EA-BB9A-4866-87F1-CCDC75F29E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8804E1EA-BB9A-4866-87F1-CCDC75F29E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8804E1EA-BB9A-4866-87F1-CCDC75F29E9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50892B91-6030-44A3-A5C6-D6E0134EDAB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50892B91-6030-44A3-A5C6-D6E0134EDAB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50892B91-6030-44A3-A5C6-D6E0134EDAB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50892B91-6030-44A3-A5C6-D6E0134EDAB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
