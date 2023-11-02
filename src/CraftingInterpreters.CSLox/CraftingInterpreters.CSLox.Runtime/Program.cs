@@ -15,6 +15,7 @@ else if (args.Length == 1)
 }
 else
 {
+	// PrintSampleExpression();
 	Lox.RunPrompt();
 }
 
@@ -66,4 +67,13 @@ class Lox
 		}
 	}
 	static bool _hadError = false;
+}
+
+static void PrintSampleExpression()
+{
+	var expression = new BinaryLoxExpression(
+			new UnaryLoxExpression(new Token(TokenType.MINUS, "-", null, 1), new LiteralLoxExpression(123)),
+			new Token(TokenType.STAR, "*", null, 1),
+			new GroupingLoxExpression(new LiteralLoxExpression(45.67)));
+	Console.WriteLine(expression.Accept(new AbstractSyntaxTreePrinter()));
 }
