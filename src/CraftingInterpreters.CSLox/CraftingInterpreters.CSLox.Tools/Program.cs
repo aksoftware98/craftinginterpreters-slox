@@ -34,6 +34,14 @@ static void DefineAst(string outputDir, string baseName, List<string> types)
 	writer.WriteLine();
 	writer.WriteLine($"public abstract class {baseName}");
 	writer.WriteLine("{");
+	// Define the abstract accept method for the visitor pattern
+	writer.WriteLine($"\tpublic abstract T Accept<T>(IVisitor<T> visitor);");
+
+	writer.WriteLine("}");
+
+	writer.WriteLine();
+	// Define the visitor interface
+	DefineVisitor(writer, baseName, types);
 
 	foreach (var type in types)
 	{
@@ -42,7 +50,6 @@ static void DefineAst(string outputDir, string baseName, List<string> types)
 		DefineType(writer, baseName, className, fields);
 	}
 
-	writer.WriteLine("}");
 	writer.WriteLine();
 
 	writer.Dispose();
@@ -51,11 +58,11 @@ static void DefineAst(string outputDir, string baseName, List<string> types)
 
 static void DefineType(StreamWriter writer, string baseName, string className, string fields)
 {
-	writer.WriteLine($"\tpublic class {className} : {baseName}");
-	writer.WriteLine("\t{");
+	writer.WriteLine($"public class {className}LoxExpression : {baseName}");
+	writer.WriteLine("{");
 	// Constructor
-	writer.WriteLine($"\t\tpublic {className}({fields})");
-	writer.WriteLine("\t\t{");
+	writer.WriteLine($"\tpublic {className}{baseName}({fields})");
+	writer.WriteLine("\t{");
 
 	// Define the fields
 	var fieldList = fields.Split(", ");
@@ -63,10 +70,18 @@ static void DefineType(StreamWriter writer, string baseName, string className, s
 	{
 		var name = field.Split(" ")[1];
 		var propertyName = GetPropertyName(name);
-		writer.WriteLine($"\t\t\tthis.{propertyName} = {name};");
+		writer.WriteLine($"\t\tthis.{propertyName} = {name};");
 	}
 
-	writer.WriteLine("\t\t}");
+	writer.WriteLine("\t}");
+
+	// Define the visitor pattern Accept method
+	writer.WriteLine();
+	writer.WriteLine($"\tpublic override T Accept<T>(IVisitor<T> visitor)");
+	writer.WriteLine("\t{");
+	writer.WriteLine($"\t\treturn visitor.Visit{GetPropertyName(className)}{baseName}(this);");
+	writer.WriteLine("\t}");
+
 	writer.WriteLine();
 
 	// Define the properties
@@ -75,14 +90,34 @@ static void DefineType(StreamWriter writer, string baseName, string className, s
 		var type = field.Split(" ")[0];
 		var name = field.Split(" ")[1];
 		name = GetPropertyName(name);
-		writer.WriteLine($"\t\tpublic {type} {name} {{ get; set; }}");
+		writer.WriteLine($"\tpublic {type} {name} {{ get; set; }}");
 	}
 
 	writer.WriteLine();
-	writer.WriteLine("\t}");
+	writer.WriteLine("}");
 	writer.WriteLine();
 }
 
+/// <summary>
+/// Define the interface related to the visitor pattern
+/// </summary>
+static void DefineVisitor(StreamWriter writer, string baseName, List<string> types)
+{
+	writer.WriteLine($"public interface IVisitor<T>");
+	writer.WriteLine("{");
+	foreach (var item in types)
+	{
+		var typeName = item.Split(":")[0].Trim();
+		var methodLine = $"\tT Visit{GetPropertyName(typeName)}{baseName}({typeName}{baseName} loxExpression);";
+		writer.WriteLine(methodLine);
+	}
+	writer.WriteLine("}");
+	writer.WriteLine();
+}
+
+/// <summary>
+/// Capitalize the first letter in a name
+/// </summary>
 static string GetPropertyName(string field)
 {
 	if (field.StartsWith("@"))
