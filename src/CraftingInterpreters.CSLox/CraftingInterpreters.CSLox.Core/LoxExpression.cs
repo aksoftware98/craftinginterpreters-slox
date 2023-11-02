@@ -61,7 +61,7 @@ public class GroupingLoxExpression : LoxExpression
 
 public class LiteralLoxExpression : LoxExpression
 {
-	public LiteralLoxExpression(object value)
+	public LiteralLoxExpression(object? value)
 	{
 		this.Value = value;
 	}
@@ -71,7 +71,7 @@ public class LiteralLoxExpression : LoxExpression
 		return visitor.VisitLiteralLoxExpression(this);
 	}
 
-	public object Value { get; set; }
+	public object? Value { get; set; }
 
 }
 
