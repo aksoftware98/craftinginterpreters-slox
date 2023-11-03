@@ -22,10 +22,32 @@ public class LoxParser
 {
 	private readonly List<Token> _tokens;
 	private int _current = 0;
+	private readonly List<string> _errors = new();
+	private bool _hadError = false;
+
+	public IEnumerable<string> Errors => _errors;
+	public bool HadError => _hadError;
 
 	public LoxParser(List<Token> tokens)
 	{
 		_tokens = tokens;
+	}
+
+	/// <summary>
+	/// Kick off the parsing process
+	/// </summary>
+	/// <returns></returns>
+	public LoxExpression? Parse()
+	{
+		try
+		{
+			return Expression();
+		}
+		catch (LoxParserException ex)
+		{
+			// TODO: Synchronize the parser after an error
+			return null;
+		}
 	}
 
 	// Translate each rule in the language
@@ -115,16 +137,84 @@ public class LoxParser
 		if (Match(TokenType.LEFT_PAREN))
 		{
 			var expression = Expression();
-			// Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+			Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
 			return new GroupingLoxExpression(expression);
 		}
 
-		// TODO: Implement the error part
-		throw new NotImplementedException();
+		throw Error(Peek(), "Except expression.");
 	}
 
 	#region Panic-Mode (Error Handling)
-	
+	/// <summary>
+	/// Check if the current token matches any of a given token and move the cursor ahead, otherwise throw a <see cref="LoxParserException"/> add add the error to the errors list
+	/// </summary>
+	/// <param name="type"></param>
+	/// <param name="message"></param>
+	/// <returns></returns>
+	private Token Consume(TokenType type, string message)
+	{
+		if (Check(type)) 
+			return Advance();
+
+		throw Error(Peek(), message);
+	}
+
+	/// <summary>
+	/// Discard the tokens after an error until we reach a token that has a statement boundary. After catching an error, we will call this until hopefully we are back on track to sync the remaning tokens
+	/// </summary>
+	private void Synchronize()
+	{
+		Advance();
+		while(!IsAtEnd())
+		{
+			if (Previous().Type == TokenType.SEMICOLON)
+				return;
+			switch (Peek().Type)
+			{
+				case TokenType.CLASS:
+				case TokenType.FUN:
+				case TokenType.FOR:
+				case TokenType.IF:
+				case TokenType.PRINT:
+				case TokenType.RETURN:
+				case TokenType.VAR:
+				case TokenType.WHILE:
+					return;
+			}
+		}
+
+		Advance();
+	}
+
+	/// <summary>
+	/// Synchronize the parser after an error
+	/// </summary>
+	/// <param name="token"></param>
+	/// <param name="message"></param>
+	private LoxParserException Error(Token token, string message)
+	{
+		string errorMessage = string.Empty;
+		if (token.Type == TokenType.EOF)
+			errorMessage = AddError(token.Line, " at end", message);
+		else
+			errorMessage = AddError(token.Line, $" at '{token.Lexeme}'", message);
+
+		return new LoxParserException(errorMessage);
+	}
+
+	/// <summary>
+	/// Add an error to the list of errors and set the flag to indicate that we had an error
+	/// </summary>
+	/// <param name="line"></param>
+	/// <param name="where"></param>
+	/// <param name="message"></param>
+	private string AddError(int line, string where, string message)
+	{
+		var errorMessage = $"[line {line}] Error{where}: {message}";
+		_errors.Add(errorMessage);
+		_hadError = true;
+		return errorMessage;
+	}
 	#endregion
 
 	#region Infrastrcture 
@@ -164,7 +254,7 @@ public class LoxParser
 	/// Return the current token and move the cursor forward
 	/// </summary>
 	/// <returns></returns>
-	private Token? Advance()
+	private Token Advance()
 	{
 		if (!IsAtEnd())
 			_current++;
@@ -199,4 +289,14 @@ public class LoxParser
 		return _tokens[_current - 1];
 	}
 	#endregion
+}
+
+/// <summary>
+/// Exception thrown when the parser encounters an error
+/// </summary>
+public class LoxParserException : Exception
+{
+	public LoxParserException(string message) : base(message)
+	{
+	}
 }

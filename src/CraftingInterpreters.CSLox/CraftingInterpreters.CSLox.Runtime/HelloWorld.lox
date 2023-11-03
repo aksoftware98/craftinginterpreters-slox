@@ -11,4 +11,4 @@ fun Add(a, b) {
 	return a + b;
 }
 
-var data = "This is amazing
+var data = "This is amazing";

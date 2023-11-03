@@ -48,12 +48,18 @@ class Lox
 	{
 		var scanner = new Scanner(source);
 		var tokens = scanner.ScanTokens();
-		_hadError = scanner.HadError;
+		var parser = new LoxParser(tokens);
+		var expression = parser.Parse();
 
+		var errors = new List<string>();
+		_hadError = scanner.HadError || parser.HadError;
+		
 		if (_hadError)
 		{
+			errors.AddRange(parser.Errors);
+			errors.AddRange(scanner.Errors);
 			Console.WriteLine($"Failed to process the source file.\r\n{scanner.Errors.Count()} errors have been found");
-			foreach (var item in scanner.Errors)
+			foreach (var item in errors)
 			{
 				Console.WriteLine(item);
 			}
@@ -67,13 +73,14 @@ class Lox
 		}
 	}
 	static bool _hadError = false;
+
+	static void PrintSampleExpression()
+	{
+		var expression = new BinaryLoxExpression(
+				new UnaryLoxExpression(new Token(TokenType.MINUS, "-", null, 1), new LiteralLoxExpression(123)),
+				new Token(TokenType.STAR, "*", null, 1),
+				new GroupingLoxExpression(new LiteralLoxExpression(45.67)));
+		Console.WriteLine(expression.Accept(new AbstractSyntaxTreePrinter()));
+	}
 }
 
-static void PrintSampleExpression()
-{
-	var expression = new BinaryLoxExpression(
-			new UnaryLoxExpression(new Token(TokenType.MINUS, "-", null, 1), new LiteralLoxExpression(123)),
-			new Token(TokenType.STAR, "*", null, 1),
-			new GroupingLoxExpression(new LiteralLoxExpression(45.67)));
-	Console.WriteLine(expression.Accept(new AbstractSyntaxTreePrinter()));
-}
