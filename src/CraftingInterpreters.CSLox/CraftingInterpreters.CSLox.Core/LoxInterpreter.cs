@@ -13,26 +13,40 @@ public class LoxInterpreter : IVisitor<object?>
 		var left = Evaluate(loxExpression.Left);
 		var right = Evaluate(loxExpression.Right);
 
-		return loxExpression.Operator.Type switch
+		switch (loxExpression.Operator.Type)
 		{
-			// Arithmetic
-			TokenType.MINUS => Number(left) - Number(right),
-			TokenType.STAR => Number(left) * Number(right),
-			TokenType.SLASH => Number(left) / Number(right),
-			// PLUS special handling two either combine two numbers or concatenate two strings
-			TokenType.PLUS => SumTwoObjects(left, right),
+
+			case TokenType.MINUS:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) - Number(right);
+			case TokenType.SLASH:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) / Number(right);
+			case TokenType.STAR:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) * Number(right);
+
+			// Sum
+			case TokenType.PLUS:
+				return SumTwoObjects(loxExpression.Operator, left, right);
 
 			// Comparison
-			TokenType.GREATER => Number(left) > Number(right),
-			TokenType.LESS => Number(left) < Number(right),
-			TokenType.GREATER_EQUAL => Number(left) >= Number(right),
-			TokenType.LESS_EQUAL => Number(left) <= Number(right),
+			case TokenType.GREATER:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) > Number(right);
+			case TokenType.GREATER_EQUAL:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) >= Number(right);
+			case TokenType.LESS:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) < Number(right);
+			case TokenType.LESS_EQUAL:
+				CheckNumberOperands(loxExpression.Operator, left, right);
+				return Number(left) <= Number(right);
 
-			// Equality
-			TokenType.BANG_EQUAL => !IsEquals(left, right),
-			TokenType.EQUAL_EQUAL => IsEquals(left, right),
-			_ => null
-		};
+			default:
+				return null;
+		}
 	}
 
 	private object? Evaluate(LoxExpression expression)
@@ -52,12 +66,16 @@ public class LoxInterpreter : IVisitor<object?>
 	{
 		var right = Evaluate(loxExpression.Right);
 
-		return loxExpression.Operator.Type switch
+		switch (loxExpression.Operator.Type)
 		{
-			TokenType.BANG => !IsTruthy(right),
-			TokenType.MINUS => -(double)(right ?? 0),
-			_ => null
-		};
+			case TokenType.MINUS:
+				CheckNumberOperand(loxExpression.Operator, right);
+				return -(double)(right ?? 0);
+			case TokenType.BANG:
+				return !IsTruthy(right);
+			default:
+				return null;
+		}
 	}
 
 	/// <summary>
@@ -93,7 +111,7 @@ public class LoxInterpreter : IVisitor<object?>
 	/// <param name="left"></param>
 	/// <param name="right"></param>
 	/// <returns></returns>
-	private object? SumTwoObjects(object? left, object? right)
+	private object? SumTwoObjects(Token token, object? left, object? right)
 	{
 		if (left == null)
 			return right;
@@ -107,8 +125,8 @@ public class LoxInterpreter : IVisitor<object?>
 		if (left is double && right is double)
 			return (double)(left ?? 0) + (double)(right ?? 0);
 
-		// TODO: Handle when on the two objects are from a two different types
-		return null;
+		throw new LoxRuntimeException(token, $"Cannot sum two objects from two different types. Object to be sum must either be numbers or strings.");
+
 	}
 
 	/// <summary>
@@ -122,5 +140,46 @@ public class LoxInterpreter : IVisitor<object?>
 	}
 
 
-	
+	#region Error Checks
+	/// <summary>
+	/// Check if the operand is a number, if not throw a runtime exception <see cref="LoxRuntimeException"/>"/>
+	/// </summary>
+	/// <param name="token"></param>
+	/// <param name="operand"></param>
+	/// <exception cref="LoxRuntimeException"></exception>
+	private void CheckNumberOperand(Token token, object? operand)
+	{
+		if (operand is double)
+			return;
+
+		throw new LoxRuntimeException(token, "Operand must be a number.");
+	}
+
+	/// <summary>
+	/// Check if left and right operands are both valid numbers otherwise throw a runtime exception <see cref="LoxRuntimeException"/>"/>
+	/// </summary>
+	/// <param name="token"></param>
+	/// <param name="left"></param>
+	/// <param name="right"></param>
+	/// <exception cref="LoxRuntimeException"></exception>
+	private void CheckNumberOperands(Token token, object? left, object? right)
+	{
+		if (left is double && right is double)
+			return;
+
+		throw new LoxRuntimeException(token, "Operands must be numbers.");
+	}
+	#endregion
+}
+
+/// <summary>
+/// Exception thrown when a runtime error occurs
+/// </summary>
+public class LoxRuntimeException : Exception
+{
+	public Token Token { get; }
+	public LoxRuntimeException(Token token, string message) : base(message)
+	{
+		Token = token;
+	}
 }
