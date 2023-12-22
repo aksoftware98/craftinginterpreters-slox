@@ -49,9 +49,10 @@ class Lox
 		var scanner = new Scanner(source);
 		var tokens = scanner.ScanTokens();
 		var parser = new LoxParser(tokens);
-		var expression = parser.Parse();
-		var interpreters = new LoxInterpreter();
-		var result = expression.Accept(interpreters);
+		var statements = parser.Parse();
+		var interpreter = new LoxInterpreter();
+		interpreter.Interpret(statements);
+		
 		var errors = new List<string>();
 		_hadError = scanner.HadError || parser.HadError;
 		

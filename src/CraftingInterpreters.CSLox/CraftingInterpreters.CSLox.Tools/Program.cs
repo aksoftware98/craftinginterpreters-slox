@@ -14,6 +14,13 @@ DefineAst(outputDirectory, "LoxExpression", new()
 	"Unary    : Token @operator, LoxExpression right"
 });
 
+
+DefineAst(outputDirectory, "LoxStatement", new()
+{
+	"Expression : LoxExpression expression",
+	"Print      : LoxExpression expression"
+});
+
 Console.WriteLine($"Done - File has been generated at {outputDirectory}.");
 
 static void DefineAst(string outputDir, string baseName, List<string> types)

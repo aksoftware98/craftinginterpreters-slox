@@ -37,17 +37,51 @@ public class LoxParser
 	/// Kick off the parsing process
 	/// </summary>
 	/// <returns></returns>
-	public LoxExpression? Parse()
+	public List<LoxStatement> Parse()
 	{
 		try
 		{
-			return Expression();
+			var statements = new List<LoxStatement>();
+			while (!IsAtEnd())
+				statements.Add(Statement());
+
+			return statements;
 		}
 		catch (LoxParserException ex)
 		{
 			// TODO: Synchronize the parser after an error
 			return null;
 		}
+	}
+
+	private LoxStatement Statement()
+	{
+		if (Match(TokenType.PRINT))
+			return PrintStatement();
+
+		return ExpressionStatement();
+	}
+
+	/// <summary>
+	/// Parse a print statement
+	/// </summary>
+	/// <returns></returns>
+	private LoxStatement PrintStatement()
+	{
+		var value = Expression();
+		Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+		return new PrintLoxStatement(value);
+	}
+
+	/// <summary>
+	/// Parse an expression statement
+	/// </summary>
+	/// <returns></returns>
+	private LoxStatement ExpressionStatement()
+	{
+		var value = Expression();
+		Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+		return new ExpressionLoxStatement(value);
 	}
 
 	// Translate each rule in the language

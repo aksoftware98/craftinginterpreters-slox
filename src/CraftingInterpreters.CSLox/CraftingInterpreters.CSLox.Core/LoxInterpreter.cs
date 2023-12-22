@@ -6,8 +6,31 @@ using System.Threading.Tasks;
 
 namespace CraftingInterpreters.CSLox.Core;
 
-public class LoxInterpreter : IVisitor<object?>
+public class LoxInterpreter : IVisitor<object?>, IStatementVisitor<object?>
 {
+
+	private List<string> _errors = new();
+
+	public void Interpret(List<LoxStatement> statements)
+	{
+		try
+		{
+			foreach (var statement in statements)
+			{
+				Execute(statement);
+			}
+
+		}
+		catch (LoxRuntimeException ex)
+		{
+
+		}
+	}
+
+
+	private void Execute(LoxStatement statement)
+		=> statement.Accept(this);
+
 	public object? VisitBinaryLoxExpression(BinaryLoxExpression loxExpression)
 	{
 		var left = Evaluate(loxExpression.Left);
@@ -169,7 +192,41 @@ public class LoxInterpreter : IVisitor<object?>
 
 		throw new LoxRuntimeException(token, "Operands must be numbers.");
 	}
+
+	#region Statement Interpreter
+	public object? VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression)
+	{
+		Evaluate(loxExpression.Expression);
+		return null;
+	}
+
+	public object? VisitPrintLoxStatement(PrintLoxStatement loxExpression)
+	{
+		var value = Evaluate(loxExpression.Expression);
+		Console.WriteLine(Stringify(value));
+		return null;
+	}
 	#endregion
+	#endregion
+
+	private string Stringify(object? value)
+	{
+		if (value == null)
+			return "nil";
+
+		if (value is double)
+		{
+			var text = value.ToString() ?? string.Empty;
+			if (text.EndsWith(".0"))
+			{
+				text = text.Substring(0, text.Length - 2);
+			}
+
+			return text;
+		}
+
+		return value.ToString() ?? string.Empty;
+	}
 }
 
 /// <summary>
