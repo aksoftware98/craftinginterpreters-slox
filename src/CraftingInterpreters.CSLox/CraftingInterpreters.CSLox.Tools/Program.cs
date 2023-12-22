@@ -19,7 +19,8 @@ DefineAst(outputDirectory, "LoxExpression", new()
 DefineAst(outputDirectory, "LoxStatement", new()
 {
 	"Expression : LoxExpression expression",
-	"Print      : LoxExpression expression"
+	"Print      : LoxExpression expression",
+	"Variable   : Token name, LoxExpression initializer"
 });
 
 Console.WriteLine($"Done - File has been generated at {outputDirectory}.");

@@ -43,7 +43,7 @@ public class LoxParser
 		{
 			var statements = new List<LoxStatement>();
 			while (!IsAtEnd())
-				statements.Add(Statement());
+				statements.Add(Declaration());
 
 			return statements;
 		}
@@ -53,6 +53,30 @@ public class LoxParser
 			return null;
 		}
 	}
+
+	private LoxStatement Declaration()
+	{
+		if (Match(TokenType.VAR))
+		{
+			return VariableDeclaration();	
+		}
+
+		return Statement();
+	}
+
+	private LoxStatement VariableDeclaration()
+	{
+		var tokenName =	Consume(TokenType.IDENTIFIER, "Identifier expected");
+
+		LoxExpression? expression = null;
+        if (Match(TokenType.EQUAL))
+        {
+			expression = Expression();
+        }
+
+		Consume(TokenType.SEMICOLON, "; expected after variable decleration");
+		return new VariableLoxStatement(tokenName, expression);
+    }
 
 	private LoxStatement Statement()
 	{
@@ -164,6 +188,8 @@ public class LoxParser
 			return new LiteralLoxExpression(false);
 		if (Match(TokenType.NIL))
 			return new LiteralLoxExpression(null);
+		if (Match(TokenType.IDENTIFIER))
+			return new VariableLoxExpression(Previous());
 
 		if (Match(TokenType.NUMBER, TokenType.STRING))
 			return new LiteralLoxExpression(Previous().Literal);

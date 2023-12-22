@@ -19,6 +19,7 @@ public interface ILoxStatementVisitor<T>
 {
 	T VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression);
 	T VisitPrintLoxStatement(PrintLoxStatement loxExpression);
+	T VisitVariableLoxStatement(VariableLoxStatement loxExpression);
 }
 
 public class ExpressionLoxStatement : LoxStatement
@@ -50,6 +51,24 @@ public class PrintLoxStatement : LoxStatement
 	}
 
 	public LoxExpression Expression { get; set; }
+
+}
+
+public class VariableLoxStatement : LoxStatement
+{
+	public VariableLoxStatement(Token name, LoxExpression initializer)
+	{
+		this.Name = name;
+		this.Initializer = initializer;
+	}
+
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
+	{
+		return visitor.VisitVariableLoxStatement(this);
+	}
+
+	public Token Name { get; set; }
+	public LoxExpression Initializer { get; set; }
 
 }
 
