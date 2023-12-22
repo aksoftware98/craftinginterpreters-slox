@@ -12,10 +12,10 @@ namespace CraftingInterpreters.CSLox.Core;
 
 public abstract class LoxStatement
 {
-	public abstract T Accept<T>(IStatementVisitor<T> visitor);
+	public abstract T Accept<T>(ILoxStatementVisitor<T> visitor);
 }
 
-public interface IStatementVisitor<T>
+public interface ILoxStatementVisitor<T>
 {
 	T VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression);
 	T VisitPrintLoxStatement(PrintLoxStatement loxExpression);
@@ -28,7 +28,7 @@ public class ExpressionLoxStatement : LoxStatement
 		this.Expression = expression;
 	}
 
-	public override T Accept<T>(IStatementVisitor<T> visitor)
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
 	{
 		return visitor.VisitExpressionLoxStatement(this);
 	}
@@ -44,7 +44,7 @@ public class PrintLoxStatement : LoxStatement
 		this.Expression = expression;
 	}
 
-	public override T Accept<T>(IStatementVisitor<T> visitor)
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
 	{
 		return visitor.VisitPrintLoxStatement(this);
 	}

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CraftingInterpreters.CSLox.Core;
 
-public class AbstractSyntaxTreePrinter : IVisitor<string>
+public class AbstractSyntaxTreePrinter : ILoxExpressionVisitor<string>
 {
 	public string VisitBinaryLoxExpression(BinaryLoxExpression loxExpression)
 		=> Parenthesize(loxExpression.Operator.Lexeme, loxExpression.Left, loxExpression.Right);
@@ -38,5 +38,10 @@ public class AbstractSyntaxTreePrinter : IVisitor<string>
 		builder.Append(")");
 
 		return builder.ToString();
+	}
+
+	public string VisitVariableLoxExpression(VariableLoxExpression loxExpression)
+	{
+		throw new NotImplementedException();
 	}
 }

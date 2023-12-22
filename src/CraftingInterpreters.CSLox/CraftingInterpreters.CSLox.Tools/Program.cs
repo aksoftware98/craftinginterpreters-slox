@@ -11,6 +11,7 @@ DefineAst(outputDirectory, "LoxExpression", new()
 	"Binary   : LoxExpression left, Token @operator, LoxExpression right",
 	"Grouping : LoxExpression expression",
 	"Literal  : object value",
+	"Variable : Token name",
 	"Unary    : Token @operator, LoxExpression right"
 });
 
@@ -42,7 +43,7 @@ static void DefineAst(string outputDir, string baseName, List<string> types)
 	writer.WriteLine($"public abstract class {baseName}");
 	writer.WriteLine("{");
 	// Define the abstract accept method for the visitor pattern
-	writer.WriteLine($"\tpublic abstract T Accept<T>(IVisitor<T> visitor);");
+	writer.WriteLine($"\tpublic abstract T Accept<T>(I{baseName}Visitor<T> visitor);");
 
 	writer.WriteLine("}");
 
@@ -65,7 +66,7 @@ static void DefineAst(string outputDir, string baseName, List<string> types)
 
 static void DefineType(StreamWriter writer, string baseName, string className, string fields)
 {
-	writer.WriteLine($"public class {className}LoxExpression : {baseName}");
+	writer.WriteLine($"public class {className}{baseName} : {baseName}");
 	writer.WriteLine("{");
 	// Constructor
 	writer.WriteLine($"\tpublic {className}{baseName}({fields})");
@@ -84,7 +85,7 @@ static void DefineType(StreamWriter writer, string baseName, string className, s
 
 	// Define the visitor pattern Accept method
 	writer.WriteLine();
-	writer.WriteLine($"\tpublic override T Accept<T>(IVisitor<T> visitor)");
+	writer.WriteLine($"\tpublic override T Accept<T>(I{baseName}Visitor<T> visitor)");
 	writer.WriteLine("\t{");
 	writer.WriteLine($"\t\treturn visitor.Visit{GetPropertyName(className)}{baseName}(this);");
 	writer.WriteLine("\t}");
@@ -110,7 +111,7 @@ static void DefineType(StreamWriter writer, string baseName, string className, s
 /// </summary>
 static void DefineVisitor(StreamWriter writer, string baseName, List<string> types)
 {
-	writer.WriteLine($"public interface IVisitor<T>");
+	writer.WriteLine($"public interface I{baseName}Visitor<T>");
 	writer.WriteLine("{");
 	foreach (var item in types)
 	{

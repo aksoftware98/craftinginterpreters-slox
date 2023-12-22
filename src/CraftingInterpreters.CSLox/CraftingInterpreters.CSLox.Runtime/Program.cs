@@ -56,6 +56,7 @@ class Lox
 		var errors = new List<string>();
 		_hadError = scanner.HadError || parser.HadError;
 		
+
 		if (_hadError)
 		{
 			errors.AddRange(parser.Errors);

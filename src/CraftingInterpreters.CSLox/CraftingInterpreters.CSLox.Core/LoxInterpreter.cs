@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CraftingInterpreters.CSLox.Core;
 
-public class LoxInterpreter : IVisitor<object?>, IStatementVisitor<object?>
+public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisitor<object?>
 {
 
 	private List<string> _errors = new();
@@ -226,6 +226,11 @@ public class LoxInterpreter : IVisitor<object?>, IStatementVisitor<object?>
 		}
 
 		return value.ToString() ?? string.Empty;
+	}
+
+	public object? VisitVariableLoxExpression(VariableLoxExpression loxExpression)
+	{
+		throw new NotImplementedException();
 	}
 }
 

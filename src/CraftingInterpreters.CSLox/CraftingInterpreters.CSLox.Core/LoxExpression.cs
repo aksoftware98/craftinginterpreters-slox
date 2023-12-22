@@ -12,14 +12,15 @@ namespace CraftingInterpreters.CSLox.Core;
 
 public abstract class LoxExpression
 {
-	public abstract T Accept<T>(IVisitor<T> visitor);
+	public abstract T Accept<T>(ILoxExpressionVisitor<T> visitor);
 }
 
-public interface IVisitor<T>
+public interface ILoxExpressionVisitor<T>
 {
 	T VisitBinaryLoxExpression(BinaryLoxExpression loxExpression);
 	T VisitGroupingLoxExpression(GroupingLoxExpression loxExpression);
 	T VisitLiteralLoxExpression(LiteralLoxExpression loxExpression);
+	T VisitVariableLoxExpression(VariableLoxExpression loxExpression);
 	T VisitUnaryLoxExpression(UnaryLoxExpression loxExpression);
 }
 
@@ -32,7 +33,7 @@ public class BinaryLoxExpression : LoxExpression
 		this.Right = right;
 	}
 
-	public override T Accept<T>(IVisitor<T> visitor)
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
 	{
 		return visitor.VisitBinaryLoxExpression(this);
 	}
@@ -50,7 +51,7 @@ public class GroupingLoxExpression : LoxExpression
 		this.Expression = expression;
 	}
 
-	public override T Accept<T>(IVisitor<T> visitor)
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
 	{
 		return visitor.VisitGroupingLoxExpression(this);
 	}
@@ -66,12 +67,28 @@ public class LiteralLoxExpression : LoxExpression
 		this.Value = value;
 	}
 
-	public override T Accept<T>(IVisitor<T> visitor)
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
 	{
 		return visitor.VisitLiteralLoxExpression(this);
 	}
 
 	public object Value { get; set; }
+
+}
+
+public class VariableLoxExpression : LoxExpression
+{
+	public VariableLoxExpression(Token name)
+	{
+		this.Name = name;
+	}
+
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
+	{
+		return visitor.VisitVariableLoxExpression(this);
+	}
+
+	public Token Name { get; set; }
 
 }
 
@@ -83,7 +100,7 @@ public class UnaryLoxExpression : LoxExpression
 		this.Right = right;
 	}
 
-	public override T Accept<T>(IVisitor<T> visitor)
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
 	{
 		return visitor.VisitUnaryLoxExpression(this);
 	}
