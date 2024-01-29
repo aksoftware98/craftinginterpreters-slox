@@ -1,1 +1,5 @@
-("ahmad mozaffar" >= "Sami Allan");
+// ("ahmad mozaffar" >= "Sami Allan");
+var a = 5;
+var b = 10 + 4;
+
+print (a + b);

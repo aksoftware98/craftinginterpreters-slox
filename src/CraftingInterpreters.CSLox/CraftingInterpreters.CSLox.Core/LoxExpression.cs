@@ -17,11 +17,30 @@ public abstract class LoxExpression
 
 public interface ILoxExpressionVisitor<T>
 {
+	T VisitAssignLoxExpression(AssignLoxExpression loxExpression);
 	T VisitBinaryLoxExpression(BinaryLoxExpression loxExpression);
 	T VisitGroupingLoxExpression(GroupingLoxExpression loxExpression);
 	T VisitLiteralLoxExpression(LiteralLoxExpression loxExpression);
 	T VisitVariableLoxExpression(VariableLoxExpression loxExpression);
 	T VisitUnaryLoxExpression(UnaryLoxExpression loxExpression);
+}
+
+public class AssignLoxExpression : LoxExpression
+{
+	public AssignLoxExpression(Token name, LoxExpression value)
+	{
+		this.Name = name;
+		this.Value = value;
+	}
+
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
+	{
+		return visitor.VisitAssignLoxExpression(this);
+	}
+
+	public Token Name { get; set; }
+	public LoxExpression Value { get; set; }
+
 }
 
 public class BinaryLoxExpression : LoxExpression

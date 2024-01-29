@@ -10,7 +10,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 {
 
 	private List<string> _errors = new();
-
+	private Environment _environment = new();
 	public void Interpret(List<LoxStatement> statements)
 	{
 		try
@@ -229,6 +229,23 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 	}
 
 	public object? VisitVariableLoxExpression(VariableLoxExpression loxExpression)
+	{
+		return _environment.Get(loxExpression.Name);
+	}
+
+	public object? VisitVariableLoxStatement(VariableLoxStatement loxExpression)
+	{
+		object? value = null;
+		if (loxExpression.Initializer != null)
+		{
+			value = Evaluate(loxExpression.Initializer);
+		}
+
+		_environment.Define(loxExpression.Name.Lexeme, value);
+		return null;
+	}
+
+	public object? VisitAssignLoxExpression(AssignLoxExpression loxExpression)
 	{
 		throw new NotImplementedException();
 	}

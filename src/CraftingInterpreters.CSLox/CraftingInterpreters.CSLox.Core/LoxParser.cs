@@ -111,8 +111,30 @@ public class LoxParser
 	// Translate each rule in the language
 	public LoxExpression Expression()
 	{
-		return Equality();
+		return Assignment();
 	}
+
+	public LoxExpression Assignment()
+	{
+		var expression = Equality();
+
+		if (Match(TokenType.EQUAL))
+		{
+			Token equals = Previous();
+			var value = Assignment();
+
+			if (expression is VariableLoxExpression)
+			{
+				Token name = ((VariableLoxExpression)expression).Name;
+				return new AssignLoxExpression(name, value);
+			}
+
+			Error(equals, "Invalid assignment target");
+		}
+
+		return expression;
+	}
+
 	public LoxExpression Equality()
 	{
 		var expression = Comparison();
