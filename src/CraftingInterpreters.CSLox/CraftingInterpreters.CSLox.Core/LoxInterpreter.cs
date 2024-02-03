@@ -247,7 +247,9 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 	public object? VisitAssignLoxExpression(AssignLoxExpression loxExpression)
 	{
-		throw new NotImplementedException();
+		var value = Evaluate(loxExpression.Value);
+		_environment.Assign(loxExpression.Name, value);
+		return value;
 	}
 }
 

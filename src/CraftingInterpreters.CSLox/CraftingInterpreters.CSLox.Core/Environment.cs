@@ -25,6 +25,16 @@ internal class Environment
 		throw new LoxRuntimeException(token, $"Undefined variable '{token.Lexeme}'.");
 	}
 
+	public void Assign(Token name, object? value)
+	{
+		if (_values.ContainsKey(name.Lexeme))
+		{
+			_values[name.Lexeme] = value;
+			return;
+		}
+
+		throw new LoxRuntimeException(name, $"Undefine variable '{name.Lexeme}'.");
+	}
 
 
 }
