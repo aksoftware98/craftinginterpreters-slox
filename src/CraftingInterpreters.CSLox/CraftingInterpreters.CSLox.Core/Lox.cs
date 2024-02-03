@@ -111,7 +111,7 @@ namespace CraftingInterpreters.CSLox.Core
 					AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.EQUAL);
 					break;
 				case '>':
-					AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.EQUAL);
+					AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
 					break;
 				case '/':
 					// Check if it matches a comment with two slashes, so keep moving until the end of the line

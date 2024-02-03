@@ -80,11 +80,28 @@ public class LoxParser
 
 	private LoxStatement Statement()
 	{
+		if (Match(TokenType.IF))
+			return IfStatement();
 		if (Match(TokenType.PRINT))
 			return PrintStatement();
 		if (Match(TokenType.LEFT_BRACE))
 			return new BlockLoxStatement(BlockStatement());
 		return ExpressionStatement();
+	}
+
+	private LoxStatement IfStatement()
+	{
+		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+
+		var condition = Expression();
+		Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition");
+
+		var thenBranch = Statement();
+		LoxStatement? elseBranch = null;
+		if (Match(TokenType.ELSE))
+			elseBranch = Statement();
+
+		return new IfLoxStatement(condition, thenBranch, elseBranch);
 	}
 
 	private List<LoxStatement> BlockStatement()

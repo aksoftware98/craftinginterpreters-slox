@@ -1,7 +1,16 @@
 // ("ahmad mozaffar" >= "Sami Allan");
-var a = 5;
+var a = 50;
 var b = 10 + 4;
 b = b + 30;
+
+if (a > b)
+{
+	print "A is bigger";
+}
+else
+{
+	print "B is bigger";
+}
 
 {
 	var a = 10;

@@ -19,6 +19,7 @@ public interface ILoxStatementVisitor<T>
 {
 	T VisitBlockLoxStatement(BlockLoxStatement loxExpression);
 	T VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression);
+	T VisitIfLoxStatement(IfLoxStatement loxExpression);
 	T VisitPrintLoxStatement(PrintLoxStatement loxExpression);
 	T VisitVariableLoxStatement(VariableLoxStatement loxExpression);
 }
@@ -52,6 +53,26 @@ public class ExpressionLoxStatement : LoxStatement
 	}
 
 	public LoxExpression Expression { get; set; }
+
+}
+
+public class IfLoxStatement : LoxStatement
+{
+	public IfLoxStatement(LoxExpression condition, LoxStatement thenBranch, LoxStatement elseBranch)
+	{
+		this.Condition = condition;
+		this.ThenBranch = thenBranch;
+		this.ElseBranch = elseBranch;
+	}
+
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
+	{
+		return visitor.VisitIfLoxStatement(this);
+	}
+
+	public LoxExpression Condition { get; set; }
+	public LoxStatement ThenBranch { get; set; }
+	public LoxStatement ElseBranch { get; set; }
 
 }
 

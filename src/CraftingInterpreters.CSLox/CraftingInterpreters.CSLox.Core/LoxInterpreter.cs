@@ -68,7 +68,8 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 			case TokenType.LESS_EQUAL:
 				CheckNumberOperands(loxExpression.Operator, left, right);
 				return Number(left) <= Number(right);
-
+			case TokenType.EQUAL_EQUAL:
+				return left == right;
 			default:
 				return null;
 		}
@@ -280,6 +281,16 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 		{
 			_environment = previous;
 		}
+	}
+
+	public object? VisitIfLoxStatement(IfLoxStatement loxExpression)
+	{
+		if (IsTruthy(Evaluate(loxExpression.Condition)))
+			Execute(loxExpression.ThenBranch);
+		else if (loxExpression.ElseBranch != null)
+			Execute(loxExpression.ElseBranch);
+
+		return null;
 	}
 }
 
