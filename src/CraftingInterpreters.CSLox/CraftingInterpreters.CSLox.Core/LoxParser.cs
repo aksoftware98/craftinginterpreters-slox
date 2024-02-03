@@ -82,9 +82,22 @@ public class LoxParser
 	{
 		if (Match(TokenType.PRINT))
 			return PrintStatement();
-
+		if (Match(TokenType.LEFT_BRACE))
+			return new BlockLoxStatement(BlockStatement());
 		return ExpressionStatement();
 	}
+
+	private List<LoxStatement> BlockStatement()
+	{
+		var statements = new List<LoxStatement>();
+
+		while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+			statements.Add(Declaration());
+
+		Consume(TokenType.RIGHT_BRACE, $"Expect '}}' after block.");
+		return statements;
+	}
+
 
 	/// <summary>
 	/// Parse a print statement

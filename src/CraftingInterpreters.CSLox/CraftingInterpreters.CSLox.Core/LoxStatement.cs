@@ -17,9 +17,26 @@ public abstract class LoxStatement
 
 public interface ILoxStatementVisitor<T>
 {
+	T VisitBlockLoxStatement(BlockLoxStatement loxExpression);
 	T VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression);
 	T VisitPrintLoxStatement(PrintLoxStatement loxExpression);
 	T VisitVariableLoxStatement(VariableLoxStatement loxExpression);
+}
+
+public class BlockLoxStatement : LoxStatement
+{
+	public BlockLoxStatement(List<LoxStatement> statements)
+	{
+		this.Statements = statements;
+	}
+
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
+	{
+		return visitor.VisitBlockLoxStatement(this);
+	}
+
+	public List<LoxStatement> Statements { get; set; }
+
 }
 
 public class ExpressionLoxStatement : LoxStatement

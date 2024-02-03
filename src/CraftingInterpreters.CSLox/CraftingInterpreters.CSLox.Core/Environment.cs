@@ -9,9 +9,20 @@ namespace CraftingInterpreters.CSLox.Core;
 internal class Environment
 {
 
+	private readonly Environment? _enclosing;
 	private readonly Dictionary<string, object?> _values = new();
 
-	public void Define(string name, object? value)
+    public Environment()
+    {
+        _enclosing = null;
+    }
+
+	public Environment(Environment enclosing)
+	{
+		_enclosing = enclosing;
+	}
+
+    public void Define(string name, object? value)
 	{
 		if (_values.ContainsKey(name))
 			_values[name] = value;
@@ -20,7 +31,11 @@ internal class Environment
 
 	public object? Get(Token token)
 	{
-		if (_values.ContainsKey(token.Lexeme)) return _values[token.Lexeme];
+		if (_values.ContainsKey(token.Lexeme)) 
+			return _values[token.Lexeme];
+
+		if (_enclosing != null) 
+			return _enclosing.Get(token);
 
 		throw new LoxRuntimeException(token, $"Undefined variable '{token.Lexeme}'.");
 	}
@@ -33,6 +48,11 @@ internal class Environment
 			return;
 		}
 
+		if (_enclosing != null)
+		{
+			_enclosing.Assign(name, value);
+			return;
+		}
 		throw new LoxRuntimeException(name, $"Undefine variable '{name.Lexeme}'.");
 	}
 

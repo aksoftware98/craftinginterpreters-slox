@@ -1,5 +1,20 @@
 // ("ahmad mozaffar" >= "Sami Allan");
 var a = 5;
 var b = 10 + 4;
+b = b + 30;
 
+{
+	var a = 10;
+	var c = 30;
+	print (a + b + c);
+	{
+		var a = 100;
+		var b = 200;
+		var c = 300;
+		print (a + b + c);
+	}
+	print (a + b + c);
+}
+
+print c;
 print (a + b);

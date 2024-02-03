@@ -11,6 +11,8 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 	private List<string> _errors = new();
 	private Environment _environment = new();
+	public IEnumerable<string> Errors => _errors;
+	public bool HadError => _errors.Count > 0;
 	public void Interpret(List<LoxStatement> statements)
 	{
 		try
@@ -23,7 +25,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 		}
 		catch (LoxRuntimeException ex)
 		{
-
+			_errors.Add($"Line: {ex.Token.Line}: {ex.Message}");
 		}
 	}
 
@@ -250,6 +252,34 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 		var value = Evaluate(loxExpression.Value);
 		_environment.Assign(loxExpression.Name, value);
 		return value;
+	}
+
+	public object? VisitBlockLoxStatement(BlockLoxStatement loxExpression)
+	{
+		ExecuteBlock(loxExpression.Statements, new Environment(_environment));
+		return null;
+	}
+
+	private void ExecuteBlock(List<LoxStatement> statements, Environment environment)
+	{
+		var previous = _environment;
+
+		try
+		{
+			_environment = environment;
+			foreach (var statement in statements)
+			{
+				Execute(statement);
+			}
+		}
+		catch
+		{
+
+		}
+		finally
+		{
+			_environment = previous;
+		}
 	}
 }
 

@@ -19,6 +19,7 @@ DefineAst(outputDirectory, "LoxExpression", new()
 
 DefineAst(outputDirectory, "LoxStatement", new()
 {
+	"Block      : List<LoxStatement> statements",
 	"Expression : LoxExpression expression",
 	"Print      : LoxExpression expression",
 	"Variable   : Token name, LoxExpression initializer"

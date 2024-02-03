@@ -54,13 +54,14 @@ class Lox
 		interpreter.Interpret(statements);
 		
 		var errors = new List<string>();
-		_hadError = scanner.HadError || parser.HadError;
+		_hadError = scanner.HadError || parser.HadError || interpreter.HadError;
 		
 
 		if (_hadError)
 		{
 			errors.AddRange(parser.Errors);
 			errors.AddRange(scanner.Errors);
+			errors.AddRange(interpreter.Errors);
 			Console.WriteLine($"Failed to process the source file.\r\n{scanner.Errors.Count()} errors have been found");
 			foreach (var item in errors)
 			{
