@@ -3,13 +3,15 @@ var a = 50;
 var b = 10 + 4;
 b = b + 30;
 
-if (a > b)
+var age = 34;
+
+if (age >= 18 and age <= 100)
 {
-	print "A is bigger";
+	print "Age is valid";
 }
 else
 {
-	print "B is bigger";
+	print "Age is invalid";
 }
 
 {

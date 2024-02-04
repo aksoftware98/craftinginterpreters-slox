@@ -23,6 +23,7 @@ public interface ILoxExpressionVisitor<T>
 	T VisitLiteralLoxExpression(LiteralLoxExpression loxExpression);
 	T VisitVariableLoxExpression(VariableLoxExpression loxExpression);
 	T VisitUnaryLoxExpression(UnaryLoxExpression loxExpression);
+	T VisitLogicalLoxExpression(LogicalLoxExpression loxExpression);
 }
 
 public class AssignLoxExpression : LoxExpression
@@ -124,6 +125,26 @@ public class UnaryLoxExpression : LoxExpression
 		return visitor.VisitUnaryLoxExpression(this);
 	}
 
+	public Token Operator { get; set; }
+	public LoxExpression Right { get; set; }
+
+}
+
+public class LogicalLoxExpression : LoxExpression
+{
+	public LogicalLoxExpression(LoxExpression left, Token @operator, LoxExpression right)
+	{
+		this.Left = left;
+		this.Operator = @operator;
+		this.Right = right;
+	}
+
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
+	{
+		return visitor.VisitLogicalLoxExpression(this);
+	}
+
+	public LoxExpression Left { get; set; }
 	public Token Operator { get; set; }
 	public LoxExpression Right { get; set; }
 

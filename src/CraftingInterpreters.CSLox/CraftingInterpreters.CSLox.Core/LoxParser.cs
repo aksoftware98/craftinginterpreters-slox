@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -146,7 +147,7 @@ public class LoxParser
 
 	public LoxExpression Assignment()
 	{
-		var expression = Equality();
+		var expression = Or();
 
 		if (Match(TokenType.EQUAL))
 		{
@@ -160,6 +161,35 @@ public class LoxParser
 			}
 
 			Error(equals, "Invalid assignment target");
+		}
+
+		return expression;
+	}
+
+	private LoxExpression Or()
+	{
+		var expression = And();
+
+		if (Match(TokenType.OR))
+		{
+			Token @operator = Previous();
+			var right = And();
+			expression = new LogicalLoxExpression(expression, @operator, right);
+		}
+
+		return expression;
+	}
+
+	private LoxExpression And()
+	{
+		var expression = Equality();
+
+		if (Match(TokenType.AND))
+		{
+			Token @operator = Previous();
+			var right = Equality();
+
+			return new LogicalLoxExpression(expression, @operator, right);
 		}
 
 		return expression;

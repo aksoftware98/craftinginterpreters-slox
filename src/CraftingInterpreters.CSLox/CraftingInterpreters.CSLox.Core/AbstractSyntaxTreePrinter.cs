@@ -49,4 +49,9 @@ public class AbstractSyntaxTreePrinter : ILoxExpressionVisitor<string>
 	{
 		throw new NotImplementedException();
 	}
+
+	public string VisitLogicalLoxExpression(LogicalLoxExpression loxExpression)
+	{
+		throw new NotImplementedException();
+	}
 }

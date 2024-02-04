@@ -292,6 +292,25 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 		return null;
 	}
+
+	public object? VisitLogicalLoxExpression(LogicalLoxExpression loxExpression)
+	{
+		var left = Evaluate(loxExpression.Left);
+
+		if (loxExpression.Operator.Type == TokenType.AND)
+		{
+			if (!IsTruthy(left))
+				return left;
+		}
+		else if (loxExpression.Operator.Type == TokenType.OR)
+		{
+			if (IsTruthy(left))
+				return left;
+		}
+		else
+			throw new LoxRuntimeException(loxExpression.Operator, $"Invalid logical operator '{loxExpression.Operator.Type}'.");
+		return Evaluate(loxExpression.Right);
+	}
 }
 
 /// <summary>
