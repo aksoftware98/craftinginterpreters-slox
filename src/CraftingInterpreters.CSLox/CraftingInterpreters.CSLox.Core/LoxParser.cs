@@ -59,7 +59,7 @@ public class LoxParser
 	{
 		if (Match(TokenType.VAR))
 		{
-			return VariableDeclaration();	
+			return VariableDeclaration();
 		}
 
 		return Statement();
@@ -67,20 +67,22 @@ public class LoxParser
 
 	private LoxStatement VariableDeclaration()
 	{
-		var tokenName =	Consume(TokenType.IDENTIFIER, "Identifier expected");
+		var tokenName = Consume(TokenType.IDENTIFIER, "Identifier expected");
 
 		LoxExpression? expression = null;
-        if (Match(TokenType.EQUAL))
-        {
+		if (Match(TokenType.EQUAL))
+		{
 			expression = Expression();
-        }
+		}
 
 		Consume(TokenType.SEMICOLON, "; expected after variable decleration");
 		return new VariableLoxStatement(tokenName, expression);
-    }
+	}
 
 	private LoxStatement Statement()
 	{
+		if (Match(TokenType.FOR))
+			return ForStatement();
 		if (Match(TokenType.IF))
 			return IfStatement();
 		if (Match(TokenType.PRINT))
@@ -90,6 +92,47 @@ public class LoxParser
 		if (Match(TokenType.LEFT_BRACE))
 			return new BlockLoxStatement(BlockStatement());
 		return ExpressionStatement();
+	}
+
+	private LoxStatement ForStatement()
+	{
+		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+		LoxStatement? initializer = null;
+		if (Match(TokenType.SEMICOLON))
+			initializer = null;
+		else if (Match(TokenType.VAR))
+			initializer = VariableDeclaration();
+		else
+			initializer = ExpressionStatement();
+
+		LoxExpression? condition = null;
+		if (!Check(TokenType.SEMICOLON))
+			condition = Expression();
+
+		Consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+		LoxExpression? increment = null;
+		if (!Check(TokenType.SEMICOLON))
+			increment = Expression();
+
+		Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+
+		LoxStatement body = Statement();
+
+		if (increment != null)
+			body = new BlockLoxStatement([body, new ExpressionLoxStatement(increment)]);
+
+		if (condition == null)
+		{
+			condition = new LiteralLoxExpression(true);
+		}
+		body = new WhileLoxStatement(condition, body);
+
+		if (initializer != null)
+			body = new BlockLoxStatement([initializer, body]);
+
+		return body;
 	}
 
 	private LoxStatement IfStatement()
@@ -227,7 +270,7 @@ public class LoxParser
 	{
 		var expression = Term();
 
-		while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) 
+		while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
 		{
 			var @operator = Previous();
 			var right = Term();
@@ -310,7 +353,7 @@ public class LoxParser
 	/// <returns></returns>
 	private Token Consume(TokenType type, string message)
 	{
-		if (Check(type)) 
+		if (Check(type))
 			return Advance();
 
 		throw Error(Peek(), message);
@@ -322,7 +365,7 @@ public class LoxParser
 	private void Synchronize()
 	{
 		Advance();
-		while(!IsAtEnd())
+		while (!IsAtEnd())
 		{
 			if (Previous().Type == TokenType.SEMICOLON)
 				return;
@@ -456,4 +499,4 @@ public class LoxParserException : Exception
 	public LoxParserException(string message) : base(message)
 	{
 	}
-} 
+}

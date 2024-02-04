@@ -17,9 +17,18 @@ else
 var count = 0;
 while (count < 3)
 {
-	print "Count is : " + count;
+	print "While loop - Count is : " + count;
 	count = count + 1;
 }
+
+print "-------------------------------------------------";
+
+for (var i = 0; i < 3; i = i + 1)
+{
+	print "For loop - i is : " + i;
+}
+
+print "-------------------------------------------------";
 
 {
 	var a = 10;
