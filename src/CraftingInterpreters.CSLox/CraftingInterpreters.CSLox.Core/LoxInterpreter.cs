@@ -145,7 +145,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 			return left;
 
 		// Check if they are string
-		if (left is string && right is string)
+		if (left is string || right is string)
 			return left.ToString() + right.ToString();
 
 		if (left is double && right is double)
@@ -310,6 +310,14 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 		else
 			throw new LoxRuntimeException(loxExpression.Operator, $"Invalid logical operator '{loxExpression.Operator.Type}'.");
 		return Evaluate(loxExpression.Right);
+	}
+
+	public object? VisitWhileLoxStatement(WhileLoxStatement loxExpression)
+	{
+		while (IsTruthy(Evaluate(loxExpression.Condition)))
+			Execute(loxExpression.Statement);
+
+		return null;
 	}
 }
 

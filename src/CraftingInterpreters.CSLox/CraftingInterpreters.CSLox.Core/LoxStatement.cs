@@ -21,6 +21,7 @@ public interface ILoxStatementVisitor<T>
 	T VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression);
 	T VisitIfLoxStatement(IfLoxStatement loxExpression);
 	T VisitPrintLoxStatement(PrintLoxStatement loxExpression);
+	T VisitWhileLoxStatement(WhileLoxStatement loxExpression);
 	T VisitVariableLoxStatement(VariableLoxStatement loxExpression);
 }
 
@@ -89,6 +90,24 @@ public class PrintLoxStatement : LoxStatement
 	}
 
 	public LoxExpression Expression { get; set; }
+
+}
+
+public class WhileLoxStatement : LoxStatement
+{
+	public WhileLoxStatement(LoxExpression condition, LoxStatement statement)
+	{
+		this.Condition = condition;
+		this.Statement = statement;
+	}
+
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
+	{
+		return visitor.VisitWhileLoxStatement(this);
+	}
+
+	public LoxExpression Condition { get; set; }
+	public LoxStatement Statement { get; set; }
 
 }
 

@@ -13,7 +13,8 @@ DefineAst(outputDirectory, "LoxExpression", new()
 	"Grouping : LoxExpression expression",
 	"Literal  : object value",
 	"Variable : Token name",
-	"Unary    : Token @operator, LoxExpression right"
+	"Unary    : Token @operator, LoxExpression right",
+	"Logical  : LoxExpression left, Token @operator, LoxExpression right"
 });
 
 
@@ -23,6 +24,7 @@ DefineAst(outputDirectory, "LoxStatement", new()
 	"Expression : LoxExpression expression",
 	"If			: LoxExpression condition, LoxStatement thenBranch, LoxStatement elseBranch",
 	"Print      : LoxExpression expression",
+	"While		: LoxExpression condition, LoxStatement statement",
 	"Variable   : Token name, LoxExpression initializer"
 });
 

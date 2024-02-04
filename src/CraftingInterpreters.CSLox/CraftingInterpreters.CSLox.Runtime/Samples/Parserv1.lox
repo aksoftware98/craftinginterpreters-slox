@@ -14,6 +14,13 @@ else
 	print "Age is invalid";
 }
 
+var count = 0;
+while (count < 3)
+{
+	print "Count is : " + count;
+	count = count + 1;
+}
+
 {
 	var a = 10;
 	var c = 30;

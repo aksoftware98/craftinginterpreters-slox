@@ -85,6 +85,8 @@ public class LoxParser
 			return IfStatement();
 		if (Match(TokenType.PRINT))
 			return PrintStatement();
+		if (Match(TokenType.WHILE))
+			return WhileStatement();
 		if (Match(TokenType.LEFT_BRACE))
 			return new BlockLoxStatement(BlockStatement());
 		return ExpressionStatement();
@@ -103,6 +105,19 @@ public class LoxParser
 			elseBranch = Statement();
 
 		return new IfLoxStatement(condition, thenBranch, elseBranch);
+	}
+
+	private LoxStatement WhileStatement()
+	{
+		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+
+		var condition = Expression();
+
+		Consume(TokenType.RIGHT_PAREN, "Except ')' after while condition.");
+
+		var statement = Statement();
+
+		return new WhileLoxStatement(condition, statement);
 	}
 
 	private List<LoxStatement> BlockStatement()
