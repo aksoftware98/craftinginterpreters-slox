@@ -51,8 +51,10 @@ public class LoxParser
 		catch (LoxParserException ex)
 		{
 			// TODO: Synchronize the parser after an error
-			return null;
+			_errors.Add(ex.Message);
 		}
+
+		return new();
 	}
 
 	private LoxStatement Declaration()
@@ -97,7 +99,7 @@ public class LoxParser
 	private LoxStatement ForStatement()
 	{
 		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
-		
+
 		LoxStatement? initializer = null;
 		if (Match(TokenType.SEMICOLON))
 			initializer = null;
@@ -105,7 +107,7 @@ public class LoxParser
 			initializer = VariableDeclaration();
 		else
 			initializer = ExpressionStatement();
-	
+
 		LoxExpression? condition = null;
 		if (!Check(TokenType.SEMICOLON))
 			condition = Expression();
@@ -206,7 +208,7 @@ public class LoxParser
 	private LoxExpression Assignment()
 	{
 		var expression = Or();
-		
+
 		if (Match(TokenType.EQUAL))
 		{
 			Token equals = Previous();
@@ -325,13 +327,15 @@ public class LoxParser
 	{
 		var expression = Primary();
 
-		if (expression is VariableLoxExpression)
+		if (Match(TokenType.INCREMENT, TokenType.DECREMENT))
 		{
-			if (Match(TokenType.INCREMENT, TokenType.DECREMENT))
+			if (expression is VariableLoxExpression)
 			{
 				var variable = (VariableLoxExpression)expression;
 				return new SteppingLoxExpression(variable.Name, Previous());
 			}
+			else
+				throw Error(Previous(), "Operand must be a variable");
 		}
 
 		return expression;
