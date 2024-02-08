@@ -78,10 +78,10 @@ namespace CraftingInterpreters.CSLox.Core
 					AddToken(TokenType.RIGHT_PAREN);
 					break;
 				case '+':
-					AddToken(TokenType.PLUS);
+					AddToken(Match('+') ? TokenType.INCREMENT : TokenType.PLUS);
 					break;
 				case '-':
-					AddToken(TokenType.MINUS);
+					AddToken(Match('-') ? TokenType.DECREMENT : TokenType.MINUS);
 					break;
 				case '{':
 					AddToken(TokenType.LEFT_BRACE);
@@ -389,7 +389,7 @@ namespace CraftingInterpreters.CSLox.Core
 		LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
 
 		// One or two character tokens.
-		BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
+		BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, INCREMENT, DECREMENT,
 
 		// Literals
 		IDENTIFIER, STRING, NUMBER,

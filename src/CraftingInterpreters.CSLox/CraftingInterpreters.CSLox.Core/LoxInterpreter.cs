@@ -263,7 +263,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 	private void ExecuteBlock(List<LoxStatement> statements, Environment environment)
 	{
-		var previous = _environment;
+		var previous = _environment; // Global
 
 		try
 		{
@@ -318,6 +318,22 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 			Execute(loxExpression.Statement);
 
 		return null;
+	}
+
+	public object? VisitSteppingLoxExpression(SteppingLoxExpression loxExpression)
+	{
+		var variable = _environment.Get(loxExpression.Name);
+		if (variable is not double)
+			throw new LoxRuntimeException(loxExpression.Name, "Variable must be a number.");
+
+		var value = (double)variable;
+		if (loxExpression.Operator.Type == TokenType.INCREMENT)
+			value++;
+		else
+			value--;
+		_environment.Assign(loxExpression.Name, value);
+
+		return value;
 	}
 }
 

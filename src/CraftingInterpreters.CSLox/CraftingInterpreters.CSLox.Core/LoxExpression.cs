@@ -18,6 +18,7 @@ public abstract class LoxExpression
 public interface ILoxExpressionVisitor<T>
 {
 	T VisitAssignLoxExpression(AssignLoxExpression loxExpression);
+	T VisitSteppingLoxExpression(SteppingLoxExpression loxExpression);
 	T VisitBinaryLoxExpression(BinaryLoxExpression loxExpression);
 	T VisitGroupingLoxExpression(GroupingLoxExpression loxExpression);
 	T VisitLiteralLoxExpression(LiteralLoxExpression loxExpression);
@@ -41,6 +42,24 @@ public class AssignLoxExpression : LoxExpression
 
 	public Token Name { get; set; }
 	public LoxExpression Value { get; set; }
+
+}
+
+public class SteppingLoxExpression : LoxExpression
+{
+	public SteppingLoxExpression(Token name, Token @operator)
+	{
+		this.Name = name;
+		this.Operator = @operator;
+	}
+
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
+	{
+		return visitor.VisitSteppingLoxExpression(this);
+	}
+
+	public Token Name { get; set; }
+	public Token Operator { get; set; }
 
 }
 

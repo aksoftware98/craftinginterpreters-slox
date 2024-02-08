@@ -9,6 +9,7 @@ var outputDirectory = Console.ReadLine();
 DefineAst(outputDirectory, "LoxExpression", new()
 {
 	"Assign	  : Token name, LoxExpression value",
+	"Stepping : Token name, Token @operator",
 	"Binary   : LoxExpression left, Token @operator, LoxExpression right",
 	"Grouping : LoxExpression expression",
 	"Literal  : object value",

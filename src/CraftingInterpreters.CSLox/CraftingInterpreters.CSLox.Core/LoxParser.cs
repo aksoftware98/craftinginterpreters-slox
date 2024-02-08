@@ -97,7 +97,7 @@ public class LoxParser
 	private LoxStatement ForStatement()
 	{
 		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
-
+		
 		LoxStatement? initializer = null;
 		if (Match(TokenType.SEMICOLON))
 			initializer = null;
@@ -105,7 +105,7 @@ public class LoxParser
 			initializer = VariableDeclaration();
 		else
 			initializer = ExpressionStatement();
-
+	
 		LoxExpression? condition = null;
 		if (!Check(TokenType.SEMICOLON))
 			condition = Expression();
@@ -121,7 +121,7 @@ public class LoxParser
 		LoxStatement body = Statement();
 
 		if (increment != null)
-			body = new BlockLoxStatement([body, new ExpressionLoxStatement(increment)]);
+			body = new BlockLoxStatement([body, new ExpressionLoxStatement(increment)]); // { print i; i = i + 1; }
 
 		if (condition == null)
 		{
@@ -203,10 +203,10 @@ public class LoxParser
 		return Assignment();
 	}
 
-	public LoxExpression Assignment()
+	private LoxExpression Assignment()
 	{
 		var expression = Or();
-
+		
 		if (Match(TokenType.EQUAL))
 		{
 			Token equals = Previous();
@@ -317,8 +317,26 @@ public class LoxParser
 			return new UnaryLoxExpression(@operator, right);
 		}
 
-		return Primary();
+		return Stepping();
 	}
+
+
+	private LoxExpression Stepping()
+	{
+		var expression = Primary();
+
+		if (expression is VariableLoxExpression)
+		{
+			if (Match(TokenType.INCREMENT, TokenType.DECREMENT))
+			{
+				var variable = (VariableLoxExpression)expression;
+				return new SteppingLoxExpression(variable.Name, Previous());
+			}
+		}
+
+		return expression;
+	}
+
 
 	public LoxExpression Primary()
 	{
