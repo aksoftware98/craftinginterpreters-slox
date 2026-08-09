@@ -122,11 +122,26 @@ public class LoxParser
 			return IfStatement();
 		if (Match(TokenType.PRINT))
 			return PrintStatement();
+		if (Match(TokenType.RETURN))
+			return ReturnStatement();
 		if (Match(TokenType.WHILE))
 			return WhileStatement();
 		if (Match(TokenType.LEFT_BRACE))
 			return new BlockLoxStatement(BlockStatement());
 		return ExpressionStatement();
+	}
+
+	private LoxStatement ReturnStatement()
+	{
+		var keyword = Previous();
+		LoxExpression? value = null;
+		if (!Check(TokenType.SEMICOLON))
+			value = Expression();
+
+		// Consume the ; 
+		Consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+
+		return new ReturnLoxStatement(keyword, value);
 	}
 
 	private LoxStatement ForStatement()

@@ -29,7 +29,14 @@ public class LoxFunctionCallable : ILoxCallable
             env.Define(_statement.Paramters[i].Lexeme, arguments[i]);
         }
 
-        interpreter.ExecuteBlock(_statement.Body, env);
+        try
+        {
+            interpreter.ExecuteBlock(_statement.Body, env);
+        }
+        catch (ReturnException returnException) // We catch the return because it's treated as an exception.
+        {
+            return returnException.Value;
+        }
 
         return null;
     }

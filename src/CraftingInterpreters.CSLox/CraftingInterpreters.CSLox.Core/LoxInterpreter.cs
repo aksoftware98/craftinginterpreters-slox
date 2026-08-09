@@ -291,10 +291,6 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 				Execute(statement);
 			}
 		}
-		catch
-		{
-
-		}
 		finally
 		{
 			_environment = previous;
@@ -379,6 +375,16 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 		_environment.Define(loxExpression.Name.Lexeme, function);
 		return null;
     }
+
+    public object? VisitReturnLoxStatement(ReturnLoxStatement loxExpression)
+    {
+		// We need to throw exception for whenever we call a return so it takes us back to the top of the trace because we don't care about the stack trace here
+		object? value = null;
+		if (loxExpression.Value != null)
+			value = Evaluate(loxExpression.Value);
+
+		throw new ReturnException(value);
+    }
 }
 
 /// <summary>
@@ -386,8 +392,8 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 /// </summary>
 public class LoxRuntimeException : Exception
 {
-	public Token Token { get; }
-	public LoxRuntimeException(Token token, string message) : base(message)
+	public Token? Token { get; }
+	public LoxRuntimeException(Token? token, string message) : base(message)
 	{
 		Token = token;
 	}

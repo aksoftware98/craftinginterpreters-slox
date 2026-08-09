@@ -30,6 +30,7 @@ DefineAst(outputDirectory, "LoxStatement", new()
 	"Function   : Token name, List<Token> paramters, List<LoxStatement> body",
 	"If			: LoxExpression condition, LoxStatement thenBranch, LoxStatement elseBranch",
 	"Print      : LoxExpression expression",
+	"Return     : Token keyword, LoxExpression value",
 	"While		: LoxExpression condition, LoxStatement statement",
 	"Variable   : Token name, LoxExpression initializer"
 });
