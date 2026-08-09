@@ -4,14 +4,21 @@ using System.Text;
 
 Console.WriteLine("Hello, World!");
 
+var source = args.Length > 0 ? args[0] : string.Empty;
+if (string.IsNullOrWhiteSpace(source))
+{
+	Console.WriteLine("Insert the file name");
+	source = Console.ReadLine();
+}
+
 if (args.Length > 1)
 {
 	Console.WriteLine("Usage: cslox [script]");
 	Environment.Exit(64);
 }
-else if (args.Length == 1)
+else if (args.Length == 1 || !string.IsNullOrWhiteSpace(source))
 {
-	Lox.RunFile(args[0]);
+	Lox.RunFile(source!);
 }
 else
 {

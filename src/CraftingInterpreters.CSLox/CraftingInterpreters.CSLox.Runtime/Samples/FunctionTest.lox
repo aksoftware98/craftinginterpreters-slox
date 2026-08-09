@@ -1,0 +1,6 @@
+fun sayHi(name, last)
+{
+    print "Hi " + name + " " + last + "!";
+}
+
+sayHi("Ahmad", "Mozaffar");

@@ -75,6 +75,9 @@ public class LoxParser
 		// Consume the function
 		Token name = Consume(TokenType.IDENTIFIER, $"Expect {kind} name.");
 
+		// Consume the left parenthesis
+		Consume(TokenType.LEFT_PAREN, $"Expect '(' after {kind} name.");
+
 		// Consume the parameters
 		var parameters = new List<Token>(); 
 		if (!Match(TokenType.RIGHT_PAREN))
@@ -88,8 +91,11 @@ public class LoxParser
 			while (Match(TokenType.COMMA));
 		}
 
-		// Consume the body
-		Consume(TokenType.LEFT_BRACE, $"Expect '{{' before the {kind} body.");
+        // Consume the right parenthesis
+        Consume(TokenType.RIGHT_PAREN, $"Expect ')' after {kind} name.");
+
+        // Consume the body
+        Consume(TokenType.LEFT_BRACE, $"Expect '{{' before the {kind} body.");
 		var body = BlockStatement();
 		return new(name, parameters, body);
 	}
