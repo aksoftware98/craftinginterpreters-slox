@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,8 +11,25 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 {
 
 	private List<string> _errors = new();
-	private Environment _environment = new();
-	public IEnumerable<string> Errors => _errors;
+
+	internal readonly Environment Globals = new(); 
+	private Environment _environment;
+
+    public LoxInterpreter()
+    {
+        // Define some globals functions 
+        Globals
+            .Define(
+				"clock",
+				new LoxCallable(
+					0,
+					(args) => DateTimeOffset.Now.ToUnixTimeSeconds()
+					)
+				);
+		_environment = Globals;
+    }
+
+    public IEnumerable<string> Errors => _errors;
 	public bool HadError => _errors.Count > 0;
 	public void Interpret(List<LoxStatement> statements)
 	{
@@ -261,7 +279,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 		return null;
 	}
 
-	private void ExecuteBlock(List<LoxStatement> statements, Environment environment)
+	internal void ExecuteBlock(List<LoxStatement> statements, Environment environment)
 	{
 		var previous = _environment; // Global
 
@@ -335,6 +353,32 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 		return value;
 	}
+
+    public object? VisitCallLoxExpression(CallLoxExpression loxExpression)
+    {
+		var callee = Evaluate(loxExpression.Calee)!;
+
+		var arguments = new List<object?>();
+		foreach (var argument in loxExpression.Arguments)
+		{
+			arguments.Add(Evaluate(argument));
+		}
+
+		if (callee is not ILoxCallable)
+			throw new LoxRuntimeException(loxExpression.Paren, "Can only call functions and calsses.");
+
+		var function = (ILoxCallable)callee;
+		if (arguments.Count != function.Arity())
+			throw new LoxRuntimeException(loxExpression.Paren, $"Expected {function.Arity()} arguments but got {arguments.Count()}.");
+		return function.Call(this, arguments);
+    }
+
+    public object? VisitFunctionLoxStatement(FunctionLoxStatement loxExpression)
+    {
+		var function = new LoxFunctionCallable(loxExpression);
+		_environment.Define(loxExpression.Name.Lexeme, function);
+		return null;
+    }
 }
 
 /// <summary>

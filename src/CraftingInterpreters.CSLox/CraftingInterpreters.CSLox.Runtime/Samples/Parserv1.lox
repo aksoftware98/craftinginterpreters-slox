@@ -1,4 +1,4 @@
-// ("ahmad mozaffar" >= "Sami Allan");
+// Comments testing ("ahmad mozaffar" == "Sami Allan");
 var a = 20;
 var b = 10 + 4;
 b = b + 30;

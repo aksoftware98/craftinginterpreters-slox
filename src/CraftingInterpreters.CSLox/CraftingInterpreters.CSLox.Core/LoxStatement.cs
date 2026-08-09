@@ -19,6 +19,7 @@ public interface ILoxStatementVisitor<T>
 {
 	T VisitBlockLoxStatement(BlockLoxStatement loxExpression);
 	T VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression);
+	T VisitFunctionLoxStatement(FunctionLoxStatement loxExpression);
 	T VisitIfLoxStatement(IfLoxStatement loxExpression);
 	T VisitPrintLoxStatement(PrintLoxStatement loxExpression);
 	T VisitWhileLoxStatement(WhileLoxStatement loxExpression);
@@ -54,6 +55,26 @@ public class ExpressionLoxStatement : LoxStatement
 	}
 
 	public LoxExpression Expression { get; set; }
+
+}
+
+public class FunctionLoxStatement : LoxStatement
+{
+	public FunctionLoxStatement(Token name, List<Token> paramters, List<LoxStatement> body)
+	{
+		this.Name = name;
+		this.Paramters = paramters;
+		this.Body = body;
+	}
+
+	public override T Accept<T>(ILoxStatementVisitor<T> visitor)
+	{
+		return visitor.VisitFunctionLoxStatement(this);
+	}
+
+	public Token Name { get; set; }
+	public List<Token> Paramters { get; set; }
+	public List<LoxStatement> Body { get; set; }
 
 }
 

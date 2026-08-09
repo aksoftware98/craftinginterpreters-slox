@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -59,12 +60,38 @@ public class LoxParser
 
 	private LoxStatement Declaration()
 	{
+		if (Match(TokenType.FUN))
+			return Function("function");
 		if (Match(TokenType.VAR))
 		{
 			return VariableDeclaration();
 		}
 
 		return Statement();
+	}
+
+	private FunctionLoxStatement Function(string kind)
+	{
+		// Consume the function
+		Token name = Consume(TokenType.IDENTIFIER, $"Expect {kind} name.");
+
+		// Consume the parameters
+		var parameters = new List<Token>(); 
+		if (!Match(TokenType.RIGHT_PAREN))
+		{
+			do
+			{
+				if (parameters.Count >= 255)
+					Error(Peek(), "Can't have more than 255 parameters.");
+				parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
+			}
+			while (Match(TokenType.COMMA));
+		}
+
+		// Consume the body
+		Consume(TokenType.LEFT_BRACE, $"Expect '{{' before the {kind} body.");
+		var body = BlockStatement();
+		return new(name, parameters, body);
 	}
 
 	private LoxStatement VariableDeclaration()
@@ -100,6 +127,8 @@ public class LoxParser
 	{
 		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
 
+		// Build the initializer
+
 		LoxStatement? initializer = null;
 		if (Match(TokenType.SEMICOLON))
 			initializer = null;
@@ -108,6 +137,7 @@ public class LoxParser
 		else
 			initializer = ExpressionStatement();
 
+		// Build the condition
 		LoxExpression? condition = null;
 		if (!Check(TokenType.SEMICOLON))
 			condition = Expression();
@@ -319,9 +349,43 @@ public class LoxParser
 			return new UnaryLoxExpression(@operator, right);
 		}
 
-		return Stepping();
+		return Call();
 	}
 
+	private LoxExpression Call()
+	{
+		LoxExpression expression = Primary(); 
+
+		while (true)
+		{
+			if (Match(TokenType.LEFT_PAREN))
+				expression = FinishCall(expression);
+			else
+				break;
+		}
+
+		return expression;
+	}
+
+	private LoxExpression FinishCall(LoxExpression callee)
+	{
+		var arguments = new List<LoxExpression>();
+
+		if (!Check(TokenType.RIGHT_PAREN)) // Means it's arguments parsing 
+			do
+			{
+				// Add limits for the number of arguments like Java so we make things work when we build the bytecode compiler later.
+				if (arguments.Count >= 255)
+					Error(Peek(), "Can't have more than 255 arguments.");
+				arguments.Add(Expression());
+			}
+			while (Match(TokenType.COMMA));
+
+		Token paren = Consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments");
+
+		// Define the body expression 
+		return new CallLoxExpression(callee, paren, arguments);
+	}
 
 	private LoxExpression Stepping()
 	{
@@ -368,7 +432,7 @@ public class LoxParser
 
 	#region Panic-Mode (Error Handling)
 	/// <summary>
-	/// Check if the current token matches any of a given token and move the cursor ahead, otherwise throw a <see cref="LoxParserException"/> add add the error to the errors list
+	/// Check if the current token matches any of a given token and move the cursor ahead, otherwise throw a <see cref="LoxParserException"/> and add the error to the errors list
 	/// </summary>
 	/// <param name="type"></param>
 	/// <param name="message"></param>

@@ -20,6 +20,7 @@ public interface ILoxExpressionVisitor<T>
 	T VisitAssignLoxExpression(AssignLoxExpression loxExpression);
 	T VisitSteppingLoxExpression(SteppingLoxExpression loxExpression);
 	T VisitBinaryLoxExpression(BinaryLoxExpression loxExpression);
+	T VisitCallLoxExpression(CallLoxExpression loxExpression);
 	T VisitGroupingLoxExpression(GroupingLoxExpression loxExpression);
 	T VisitLiteralLoxExpression(LiteralLoxExpression loxExpression);
 	T VisitVariableLoxExpression(VariableLoxExpression loxExpression);
@@ -80,6 +81,26 @@ public class BinaryLoxExpression : LoxExpression
 	public LoxExpression Left { get; set; }
 	public Token Operator { get; set; }
 	public LoxExpression Right { get; set; }
+
+}
+
+public class CallLoxExpression : LoxExpression
+{
+	public CallLoxExpression(LoxExpression calee, Token paren, List<LoxExpression> arguments)
+	{
+		this.Calee = calee;
+		this.Paren = paren;
+		this.Arguments = arguments;
+	}
+
+	public override T Accept<T>(ILoxExpressionVisitor<T> visitor)
+	{
+		return visitor.VisitCallLoxExpression(this);
+	}
+
+	public LoxExpression Calee { get; set; }
+	public Token Paren { get; set; }
+	public List<LoxExpression> Arguments { get; set; }
 
 }
 

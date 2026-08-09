@@ -3,15 +3,19 @@
 using System.Xml.Linq;
 
 Console.WriteLine("Hello, World!");
-Console.WriteLine("Enter the ouput file name: ");
+Console.WriteLine("Enter the ouput file name: "); // It should be the value of the LoxExpression.cs file within the Core project 
+// For default running from within VS the value should be: ..\..\..\..\CraftingInterpreters.CSLox.Core\
 var outputDirectory = Console.ReadLine();
+
+
 
 DefineAst(outputDirectory, "LoxExpression", new()
 {
 	"Assign	  : Token name, LoxExpression value",
 	"Stepping : Token name, Token @operator",
 	"Binary   : LoxExpression left, Token @operator, LoxExpression right",
-	"Grouping : LoxExpression expression",
+    "Call     : LoxExpression calee, Token paren, List<LoxExpression> arguments",
+    "Grouping : LoxExpression expression",
 	"Literal  : object value",
 	"Variable : Token name",
 	"Unary    : Token @operator, LoxExpression right",
@@ -23,6 +27,7 @@ DefineAst(outputDirectory, "LoxStatement", new()
 {
 	"Block      : List<LoxStatement> statements",
 	"Expression : LoxExpression expression",
+	"Function   : Token name, List<Token> paramters, List<LoxStatement> body",
 	"If			: LoxExpression condition, LoxStatement thenBranch, LoxStatement elseBranch",
 	"Print      : LoxExpression expression",
 	"While		: LoxExpression condition, LoxStatement statement",
