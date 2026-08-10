@@ -12,6 +12,7 @@ internal class LoxFunctionCallable : ILoxCallable
     readonly FunctionLoxStatement _statement;
     private readonly Environment _closure; 
 
+    // We need to implement persistent data structures so the function or the block receives a frozen block of the environment.
     public LoxFunctionCallable(FunctionLoxStatement statement, Environment closure)
     {
         _statement = statement;
