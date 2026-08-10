@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 
 namespace CraftingInterpreters.CSLox.Core;
 
-public class LoxFunctionCallable : ILoxCallable
+internal class LoxFunctionCallable : ILoxCallable
 {
 
     readonly FunctionLoxStatement _statement;
+    private readonly Environment _closure; 
 
-    public LoxFunctionCallable(FunctionLoxStatement statement)
+    public LoxFunctionCallable(FunctionLoxStatement statement, Environment closure)
     {
         _statement = statement;
+        _closure = closure;
     }
 
     public int Arity()
@@ -23,7 +25,7 @@ public class LoxFunctionCallable : ILoxCallable
 
     public object? Call(LoxInterpreter interpreter, List<object?> arguments)
     {
-        Environment env = new Environment(interpreter.Globals);
+        Environment env = new Environment(_closure);
         for (int i = 0; i < _statement.Paramters.Count; i++)
         {
             env.Define(_statement.Paramters[i].Lexeme, arguments[i]);

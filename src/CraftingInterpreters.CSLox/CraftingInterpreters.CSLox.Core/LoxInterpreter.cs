@@ -371,7 +371,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
     public object? VisitFunctionLoxStatement(FunctionLoxStatement loxExpression)
     {
-		var function = new LoxFunctionCallable(loxExpression);
+		var function = new LoxFunctionCallable(loxExpression, _environment);
 		_environment.Define(loxExpression.Name.Lexeme, function);
 		return null;
     }

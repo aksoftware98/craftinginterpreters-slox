@@ -89,10 +89,10 @@ public class LoxParser
 				parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
 			}
 			while (Match(TokenType.COMMA));
-		}
 
-        // Consume the right parenthesis
-        Consume(TokenType.RIGHT_PAREN, $"Expect ')' after {kind} name.");
+            // Consume the right parenthesis
+            Consume(TokenType.RIGHT_PAREN, $"Expect ')' after {kind} name.");
+        }
 
         // Consume the body
         Consume(TokenType.LEFT_BRACE, $"Expect '{{' before the {kind} body.");
