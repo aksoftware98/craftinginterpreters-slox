@@ -136,7 +136,7 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
     public Unit VisitVariableLoxExpression(VariableLoxExpression loxExpression)
     {
         // Check if the variable that's being assigned have actually been resolved. 
-        if (_scopes.Count != 0 && !_scopes[_scopes.Count - 1][loxExpression.Name.Lexeme])
+        if (_scopes.Count != 0 && _scopes[_scopes.Count - 1].TryGetValue(loxExpression.Name.Lexeme, out var isInitialized) && !isInitialized)
         {
             Error(loxExpression.Name, "Can't read local variable in its own initializer"); 
         }
@@ -211,7 +211,7 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
     private void Define(Token name)
     {
         if (_scopes.Count == 0) return;
-        _scopes[_scopes.Count - 1].TryAdd(name.Lexeme,true);
+        _scopes[_scopes.Count - 1][name.Lexeme] = true;
     }
 
     /// <summary>

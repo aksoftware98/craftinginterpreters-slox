@@ -1,9 +1,24 @@
 var name = "ahmad";
+var lastName = "Mozaffar";
+
+fun printLastName() {
+    print lastName;
+}
+
+printLastName();
+
+fun add(a, b) {
+    return a + b;
+}
 
 fun printName() {
     var name = "khaled";
-    var name = "rasheed";
-    print name;
+    var s = true;
+    var i = 2;
+    var number = (1 * 5) + i;
+    print "The final result of that massive thing is incredible " + number;
+    print number * add(5, 4);
 }
+
 
 printName();
