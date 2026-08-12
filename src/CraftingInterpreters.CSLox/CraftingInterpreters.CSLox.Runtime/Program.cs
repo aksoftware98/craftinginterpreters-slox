@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CraftingInterpreters.CSLox.Core;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 Console.WriteLine("Hello, World!");
@@ -7,8 +8,9 @@ Console.WriteLine("Hello, World!");
 var source = args.Length > 0 ? args[0] : string.Empty;
 if (string.IsNullOrWhiteSpace(source))
 {
-	Console.WriteLine("Insert the file name");
+	Console.WriteLine("Insert the file name from wihtin the Samples folder");
 	source = Console.ReadLine();
+	source = Path.Combine("..", "..", "..", "Samples", source!);
 }
 
 if (args.Length > 1)
@@ -18,7 +20,15 @@ if (args.Length > 1)
 }
 else if (args.Length == 1 || !string.IsNullOrWhiteSpace(source))
 {
-	Lox.RunFile(source!);
+	try
+	{
+        Lox.RunFile(source!);
+    }
+    catch (LoxParserException ex)
+	{
+		Console.WriteLine("Failed to run the program");
+		Console.WriteLine(ex.Message);
+	}
 }
 else
 {
@@ -63,7 +73,8 @@ class Lox
 			{
 				Console.WriteLine($"\t{error}");
 			}
-		}
+            return;
+        }
 
 		var parser = new LoxParser(tokens);
 		var statements = parser.Parse();
@@ -75,12 +86,22 @@ class Lox
 			{
 				Console.WriteLine($"\t{item}");
 			}
-		}
+            return;
+        }
 
 		var interpreter = new LoxInterpreter();
 		var resolver = new LoxResolver(interpreter);
 		resolver.Resolve(statements);
 
+		if (resolver.HadError)
+		{
+			Console.WriteLine("Failed to resovle the source code variables");
+			foreach (var item in resolver.Errors)
+			{
+                Console.WriteLine($"\t{item}");
+            }
+			return;
+		}
 
 		interpreter.Interpret(statements);
 		

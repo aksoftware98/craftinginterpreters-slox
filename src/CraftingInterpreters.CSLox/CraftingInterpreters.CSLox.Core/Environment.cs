@@ -26,7 +26,7 @@ internal class Environment
 	{
 		if (_values.ContainsKey(name))
 			_values[name] = value;
-		_values.Add(name, value);
+		_values.TryAdd(name, value);
 	}
 
 	public object? Get(Token token)

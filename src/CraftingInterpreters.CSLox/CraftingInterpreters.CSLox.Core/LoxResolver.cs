@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,12 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
 
     private readonly LoxInterpreter _loxInterpreter;
     private readonly List<Dictionary<string, bool>> _scopes = new();
+    private LoxFunctionType _currentFunction = LoxFunctionType.None;
+    private List<string> _errors = new();
+
+    public IEnumerable<string> Errors => _errors;   
+    public bool HadError => _errors.Count > 0;
+
 
     public LoxResolver(LoxInterpreter interprter)
     {
@@ -66,7 +73,7 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
     {
         Declare(loxExpression.Name);
         Define(loxExpression.Name);
-        ResolveFunction(loxExpression);
+        ResolveFunction(loxExpression, LoxFunctionType.Function);
         return new();
     }
 
@@ -105,6 +112,10 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
 
     public Unit VisitReturnLoxStatement(ReturnLoxStatement loxExpression)
     {
+        if (_currentFunction == LoxFunctionType.None)
+        {
+            Error(loxExpression.Keyword, "Can't return from a top-level code.");
+        }
         if (loxExpression.Value != null)
             Resolve(loxExpression.Value);
 
@@ -127,7 +138,7 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
         // Check if the variable that's being assigned have actually been resolved. 
         if (_scopes.Count != 0 && !_scopes[_scopes.Count - 1][loxExpression.Name.Lexeme])
         {
-            // TODO: Throw an error that can't read local variable in the iws own initializer.
+            Error(loxExpression.Name, "Can't read local variable in its own initializer"); 
         }
 
         ResolveLocal(loxExpression, loxExpression.Name);
@@ -182,14 +193,25 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
     {
         if (_scopes.Count == 0) return;
 
-        var scope = _scopes[0];
+        var scope = _scopes[_scopes.Count - 1];
+        if (scope.ContainsKey(name.Lexeme))
+        {
+            Error(name, "Alraedy a variable with this name in this scope.");
+        }
         scope.Add(name.Lexeme, false);
+    }
+
+    private void Error(Token token, string message)
+    {
+        var errorMessage = $"Error at line {token.Line} on {token.Lexeme}: {message}";
+        _errors.Add(errorMessage);
+        throw new LoxParserException(errorMessage);
     }
 
     private void Define(Token name)
     {
         if (_scopes.Count == 0) return;
-        _scopes[_scopes.Count - 1][name.Lexeme] = true;
+        _scopes[_scopes.Count - 1].TryAdd(name.Lexeme,true);
     }
 
     /// <summary>
@@ -213,21 +235,20 @@ public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Uni
     /// The function first we declare and define its name then we open a scope in the body for the parameters then we declare and define them inside.
     /// </summary>
     /// <param name="function"></param>
-    private void ResolveFunction(FunctionLoxStatement function)
+    private void ResolveFunction(FunctionLoxStatement function, LoxFunctionType type)
     {
+        var enclosingFunction = _currentFunction;
+        _currentFunction = type;
+
         BeginScope();
         foreach (var item in function.Paramters)
         {
             Declare(item);
             Define(item);
         }
+        Resolve(function.Body);
         EndScope();
+        _currentFunction = enclosingFunction;
     }
 
 }
-
-
-/// <summary>
-/// Void type that means nothing
-/// </summary>
-public record Unit { }

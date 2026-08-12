@@ -1,0 +1,9 @@
+var name = "ahmad";
+
+fun printName() {
+    var name = "khaled";
+    var name = "rasheed";
+    print name;
+}
+
+printName();
