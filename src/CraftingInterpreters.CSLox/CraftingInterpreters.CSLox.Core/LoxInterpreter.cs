@@ -12,6 +12,10 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 	private List<string> _errors = new();
 
+	/// <summary>
+	/// Side table to store each variable operation with the depth of its environment
+	/// </summary>
+	private readonly Dictionary<LoxExpression, int> _locals = new(); 
 	internal readonly Environment Globals = new(); 
 	private Environment _environment;
 
@@ -50,6 +54,11 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 	private void Execute(LoxStatement statement)
 		=> statement.Accept(this);
+
+	public void Resolve(LoxExpression expression, int depth)
+	{
+		_locals.Add(expression, depth);
+	}
 
 	public object? VisitBinaryLoxExpression(BinaryLoxExpression loxExpression)
 	{
@@ -251,7 +260,7 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 	public object? VisitVariableLoxExpression(VariableLoxExpression loxExpression)
 	{
-		return _environment.Get(loxExpression.Name);
+		return LookupVariable(loxExpression.Name, loxExpression);
 	}
 
 	public object? VisitVariableLoxStatement(VariableLoxStatement loxExpression)
@@ -269,6 +278,16 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 	public object? VisitAssignLoxExpression(AssignLoxExpression loxExpression)
 	{
 		var value = Evaluate(loxExpression.Value);
+
+		var hasDistance = _locals.TryGetValue(loxExpression, out var distance);
+		if (hasDistance)
+		{
+			_environment.AssignAt(distance, loxExpression.Name, value);
+		}
+		else
+		{
+			Globals.Assign(loxExpression.Name, value);
+		}
 		_environment.Assign(loxExpression.Name, value);
 		return value;
 	}
@@ -385,6 +404,15 @@ public class LoxInterpreter : ILoxExpressionVisitor<object?>, ILoxStatementVisit
 
 		throw new ReturnException(value);
     }
+
+	private object? LookupVariable(Token name, LoxExpression expression)
+	{
+		var hasDistance = _locals.TryGetValue(expression, out var distance);
+		if (hasDistance)
+			return _environment.GetAt(distance, name);
+
+		return Globals.Get(name);
+	}
 }
 
 /// <summary>

@@ -12,7 +12,7 @@ namespace CraftingInterpreters.CSLox.Core;
 /// where variables must be resolved.
 /// It's there to resolve the issue of having forzen scope for each environment.
 /// </summary>
-internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Unit>
+public class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<Unit>
 {
 
     private readonly LoxInterpreter _loxInterpreter;
@@ -32,7 +32,9 @@ internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<U
 
     public Unit VisitBinaryLoxExpression(BinaryLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Left);
+        Resolve(loxExpression.Right);
+        return new();
     }
 
     public Unit VisitBlockLoxStatement(BlockLoxStatement loxExpression)
@@ -45,57 +47,79 @@ internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<U
 
     public Unit VisitCallLoxExpression(CallLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Calee);
+        foreach (var item in loxExpression.Arguments)
+        {
+            Resolve(item);
+        }
+
+        return new();
     }
 
     public Unit VisitExpressionLoxStatement(ExpressionLoxStatement loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Expression);
+        return new();
     }
 
     public Unit VisitFunctionLoxStatement(FunctionLoxStatement loxExpression)
     {
-        throw new NotImplementedException();
+        Declare(loxExpression.Name);
+        Define(loxExpression.Name);
+        ResolveFunction(loxExpression);
+        return new();
     }
 
     public Unit VisitGroupingLoxExpression(GroupingLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Expression);
+        return new();
     }
 
     public Unit VisitIfLoxStatement(IfLoxStatement loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Condition);
+        Resolve(loxExpression.ThenBranch);
+        if (loxExpression.ElseBranch != null)
+            Resolve(loxExpression.ElseBranch);
+        return new();
     }
 
     public Unit VisitLiteralLoxExpression(LiteralLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        return new();
     }
 
     public Unit VisitLogicalLoxExpression(LogicalLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Left);
+        Resolve(loxExpression.Right);
+        return new();
     }
 
     public Unit VisitPrintLoxStatement(PrintLoxStatement loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Expression);
+        return new();
     }
 
     public Unit VisitReturnLoxStatement(ReturnLoxStatement loxExpression)
     {
-        throw new NotImplementedException();
+        if (loxExpression.Value != null)
+            Resolve(loxExpression.Value);
+
+        return new();
     }
 
     public Unit VisitSteppingLoxExpression(SteppingLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        return new();
     }
 
     public Unit VisitUnaryLoxExpression(UnaryLoxExpression loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Right);
+        return new();
     }
 
     public Unit VisitVariableLoxExpression(VariableLoxExpression loxExpression)
@@ -121,10 +145,12 @@ internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<U
 
     public Unit VisitWhileLoxStatement(WhileLoxStatement loxExpression)
     {
-        throw new NotImplementedException();
+        Resolve(loxExpression.Condition);
+        Resolve(loxExpression.Statement);
+        return new();
     }
 
-    private void Resolve(List<LoxStatement> statements)
+    public void Resolve(List<LoxStatement> statements)
     {
         foreach (var item in statements)
         {
@@ -132,7 +158,7 @@ internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<U
         }
     }
 
-    private void Resolve(LoxStatement statement)
+    public void Resolve(LoxStatement statement)
     {
         statement.Accept(this);
     }
@@ -183,6 +209,20 @@ internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<U
         }
     }
 
+    /// <summary>
+    /// The function first we declare and define its name then we open a scope in the body for the parameters then we declare and define them inside.
+    /// </summary>
+    /// <param name="function"></param>
+    private void ResolveFunction(FunctionLoxStatement function)
+    {
+        BeginScope();
+        foreach (var item in function.Paramters)
+        {
+            Declare(item);
+            Define(item);
+        }
+        EndScope();
+    }
 
 }
 
@@ -190,4 +230,4 @@ internal class LoxResolver : ILoxExpressionVisitor<Unit>, ILoxStatementVisitor<U
 /// <summary>
 /// Void type that means nothing
 /// </summary>
-record Unit { }
+public record Unit { }

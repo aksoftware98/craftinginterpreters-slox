@@ -55,15 +55,38 @@ class Lox
 	{
 		var scanner = new Scanner(source);
 		var tokens = scanner.ScanTokens();
+
+		if (scanner.HadError)
+		{
+			Console.WriteLine("Failed to tokenize the source code");
+			foreach (var error in scanner.Errors)
+			{
+				Console.WriteLine($"\t{error}");
+			}
+		}
+
 		var parser = new LoxParser(tokens);
 		var statements = parser.Parse();
+
+		if (parser.HadError)
+		{
+			Console.WriteLine("Failed to parse the tokens");
+			foreach (var item in parser.Errors)
+			{
+				Console.WriteLine($"\t{item}");
+			}
+		}
+
 		var interpreter = new LoxInterpreter();
+		var resolver = new LoxResolver(interpreter);
+		resolver.Resolve(statements);
+
+
 		interpreter.Interpret(statements);
 		
 		var errors = new List<string>();
 		_hadError = scanner.HadError || parser.HadError || interpreter.HadError;
 		
-
 		if (_hadError)
 		{
 			errors.AddRange(parser.Errors);

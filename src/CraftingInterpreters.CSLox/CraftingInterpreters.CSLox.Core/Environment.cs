@@ -40,6 +40,22 @@ internal class Environment
 		throw new LoxRuntimeException(token, $"Undefined variable '{token.Lexeme}'.");
 	}
 
+	public object? GetAt(int distance, Token name)
+	{
+		return Ancestor(distance).Get(name);
+	}
+
+	private Environment Ancestor(int distance)
+	{
+		var environment = this;
+		for (int i = 0; i < distance; i++)
+		{
+			environment = environment!._enclosing;
+		}
+
+		return environment!;
+	}
+
 	public void Assign(Token name, object? value)
 	{
 		if (_values.ContainsKey(name.Lexeme))
@@ -54,6 +70,11 @@ internal class Environment
 			return;
 		}
 		throw new LoxRuntimeException(name, $"Undefine variable '{name.Lexeme}'.");
+	}
+
+	public void AssignAt(int distance, Token name, object? value)
+	{
+		Ancestor(distance).Assign(name, value);
 	}
 
 
